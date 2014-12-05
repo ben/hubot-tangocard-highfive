@@ -1,0 +1,24 @@
+{
+  "name": "hubot-tangocard-highfive",
+  "version": "0.0.1",
+  "description": "Hubot plugin for high-fiving and optionally sending gift cards to chat users",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ben/hubot-tangocard-highfive"
+  },
+  "keywords": [
+    "hubot",
+    "hubotscripts",
+    "tangocard"
+  ],
+  "author": "Ben Straub <ben@straub.cc>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ben/hubot-tangocard-highfive/issues"
+  },
+  "homepage": "https://github.com/ben/hubot-tangocard-highfive"
+}
