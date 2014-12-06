@@ -86,3 +86,9 @@ describe 'highfive', ->
         message_response 'highfive @bar for nothing', 'reply', (e,strs) ->
             expect(strs).to.contain "Who's @bar"
             do done
+
+    it 'should announce the gift card', (done) ->
+        message_response 'highfive @foo $25 for something', 'send', (e,strs) ->
+            if strs[..2] != 'WOO'
+                expect(strs).to.contain '2@example.com'
+                do done
