@@ -14,11 +14,16 @@ robot = user = {}
 prep = (done) ->
     robot = new Robot path.resolve(__dirname), 'shell', no, 'TestHubot'
     robot.adapter.on 'connected', ->
+        # Dummy email service
+        process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE = 'dummy'
         # Project script
         robot.loadFile path.resolve('.'), 'index.coffee'
         user = robot.brain.userForId "1",
             name: "mocha"
             room: "#mocha"
+        robot.brain.userForId '2',
+            name: 'foo'
+            room: '#mocha'
         done()
     robot.run()
     robot
@@ -26,6 +31,11 @@ prep = (done) ->
 cleanup = ->
     robot.shutdown()
     nock.cleanAll()
+
+# Message/response helper
+message_response = (msg, evt, expecter) ->
+    robot.adapter.on evt, expecter
+    robot.adapter.receive new TextMessage user, "TestHubot #{msg}"
 
 # Test help output
 describe 'help', ->
@@ -45,21 +55,26 @@ describe 'help', ->
         expect(expected).to.contain(x) for x in help
         do done
 
-    it 'should respond to ping', (done) ->
-        robot.adapter.on 'reply', (env, strs) ->
-            debugger
-            console.log "got '#{strs}'"
-            do done
-        debugger
-        robot.adapter.receive new TextMessage user, 'TestHubot ping'
-
-
 describe 'tangocard api', ->
     it 'should be true', (done) ->
         expect(yes).to.equal true
         do done
 
 describe 'highfive', ->
-    it 'should be true', (done) ->
-        expect(yes).to.equal true
-        do done
+    beforeEach prep
+    afterEach cleanup
+
+    it "shouldn't let you high-five yourself", (done) ->
+        message_response 'highfive @mocha for nothing', 'reply', (e,strs) ->
+            expect(strs).to.contain 'clapping'
+            do done
+
+    it "shouldn't let you send huge gifts", (done) ->
+        message_response 'highfive @foo $5000 for nothing', 'reply', (e,strs) ->
+            expect(strs).to.contain '$5000'
+            do done
+
+    it 'should make some noise', (done) ->
+        message_response 'highfive @foo for something', 'send', (e,strs) ->
+            expect(strs).to.contain 'WOO'
+            do done
