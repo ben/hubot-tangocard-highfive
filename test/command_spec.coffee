@@ -8,13 +8,11 @@ path = require 'path'
 nock = require 'nock'
 
 # Globals
-robot = {}
-adapter = {}
-user = {}
+robot = user = {}
 
 # Create a robot, load our script
-createRobot = (enableHttpd, done) ->
-    robot = new Robot null, 'mock-adapter', enableHttpd, 'TestHubot'
+prep = (done) ->
+    robot = new Robot path.resolve(__dirname), 'shell', no, 'TestHubot'
     robot.adapter.on 'connected', ->
         # Project script
         robot.loadFile path.resolve('.'), 'index.coffee'
@@ -25,23 +23,20 @@ createRobot = (enableHttpd, done) ->
     robot.run()
     robot
 
+cleanup = ->
+    robot.shutdown()
+    nock.cleanAll()
 
 # Test help output
 describe 'help', ->
-    beforeEach (done) ->
-        robot = createRobot no, done
-        adapter = robot.adapter
+    beforeEach prep
+    afterEach cleanup
 
-    afterEach ->
-        robot.shutdown()
-        nock.cleanAll()
-
-    it 'should have 2', (done)->
-        # console.log "'#{x}'" for x in
+    it 'should have 2', (done) ->
         expect(robot.helpCommands()).to.have.length 2
         do done
 
-    it 'should parse help', (done)->
+    it 'should parse help', (done) ->
         help = robot.helpCommands()
         expected = [
             'hubot highfive @<user> $<amount> for <awesome thing> - makes a loud announcement and sends the user an Amazon.com giftcard',
@@ -49,6 +44,14 @@ describe 'help', ->
         ]
         expect(expected).to.contain(x) for x in help
         do done
+
+    it 'should respond to ping', (done) ->
+        robot.adapter.on 'reply', (env, strs) ->
+            debugger
+            console.log "got '#{strs}'"
+            do done
+        debugger
+        robot.adapter.receive new TextMessage user, 'TestHubot ping'
 
 
 describe 'tangocard api', ->
