@@ -18,6 +18,7 @@ prep = (done) ->
         process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE = 'dummy'
         # Project script
         robot.loadFile path.resolve('.'), 'index.coffee'
+        # Some test users
         user = robot.brain.userForId "1",
             name: "mocha"
             room: "#mocha"
@@ -55,11 +56,13 @@ describe 'help', ->
         expect(expected).to.contain(x) for x in help
         do done
 
+# Test the Tango Card API implementation
 describe 'tangocard api', ->
     it 'should be true', (done) ->
         expect(yes).to.equal true
         do done
 
+# Test the command itself
 describe 'highfive', ->
     beforeEach prep
     afterEach cleanup
@@ -77,4 +80,9 @@ describe 'highfive', ->
     it 'should make some noise', (done) ->
         message_response 'highfive @foo for something', 'send', (e,strs) ->
             expect(strs).to.contain 'WOO'
+            do done
+
+    it "should complain if it can't find a user", (done) ->
+        message_response 'highfive @bar for nothing', 'reply', (e,strs) ->
+            expect(strs).to.contain "Who's @bar"
             do done

@@ -13,9 +13,12 @@ module.exports = (robot) ->
         reason = msg.match[4]
 
         # Safety checks:
+        # - Don't target a nonexistent user
         # - Don't send money to yourself
         # - $200 or less
         # - Any others?
+        unless to_user
+            return msg.reply "Who's #{msg.match[1]}?"
         if to_user.name == from_user.name
             return msg.reply "High-fiving yourself is just clapping."
         if amt > 200
