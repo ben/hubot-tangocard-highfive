@@ -1,9 +1,15 @@
 # Description:
 #   Reward awesomeness with public recognition and (maybe) dollars.
 #
-# Commands
+# Commands:
 #   hubot highfive @<user> for <awesome thing> - makes a loud announcement in a public chatroom
 #   hubot highfive @<user> $<amount> for <awesome thing> - makes a loud announcement and sends the user an Amazon.com giftcard
+#
+# Configuration:
+#   HUBOT_HIGHFIVE_EMAIL_SERVICE - Service for looking up email addresses by user names (defaults to 'slack')
+#   HUBOT_SLACK_API_TOKEN - If using the 'slack' email service, this is your API token. Get one from https://api.slack.com/tokens
+#   HUBOT_HIGHFIVE_ROOM - Room for making noise when someone is high-fived. Defaults to the room the request was made in
+#   HUBOT_HIGHFIVE_AWARD_LIMIT - upper limit for giftcard awards. Set to 0 to disable giftcards. Default is 150.
 
 module.exports = (robot) ->
     # Services for getting emails from users
