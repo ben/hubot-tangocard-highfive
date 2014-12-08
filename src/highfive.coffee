@@ -8,40 +8,52 @@
 module.exports = (robot) ->
     # Services for getting emails from users
     email_fetchers =
-        slack: (uid, callback) ->
-            new SlackApp(robot).getUser uid, (resp) ->
-                callback resp.user.profile.email
-        dummy: (uid, callback) ->
-            callback "#{uid}@example.com"
+        slack: (username1, username2, callback) ->
+            new SlackApp(robot).listUsers (resp) ->
+                grabber = (name) ->
+                    (x.profile.email for x in resp.members when x.name == name)[0]
+                [e1, e2] = (grabber(u) for u in [username1, username2])
+                callback e1, e2
+        dummy: (username1, username2, callback) ->
+            # This is for testing.
+            [e1, e2] = (robot.brain.userForName(u)?.email for u in [username1, username2])
+            callback e1, e2
 
     email_fetcher = email_fetchers[process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE || 'slack']
 
     # The main responder
     robot.respond /highfive (@\S+)( \$(\d+))? for (.*)/, (msg) ->
-        to_user = robot.brain.userForName msg.match[1][1..]
-        from_user = msg.message.user
+        from_user = msg.message.user.name
+        to_user = msg.match[1][1..]
         amt = parseInt(msg.match[3] or 0)
         reason = msg.match[4]
 
-        # Safety checks:
-        # - Don't target a nonexistent user
-        # - Don't send money to yourself
-        # - $200 or less
-        # - Any others?
-        unless to_user
-            return msg.reply "Who's #{msg.match[1]}?"
-        if to_user.name == from_user.name
-            return msg.reply "High-fiving yourself is just clapping."
-        if amt > 200
-            return msg.reply "$#{amt} is more like a high-500. Think smaller."
+        email_fetcher from_user, to_user, (from_email, to_email) ->
+            # Safety checks:
+            # - Don't target a nonexistent user
+            # - Don't send money to yourself
+            # - $150 or less
+            # - Any others?
+            unless to_email
+                return msg.reply "Who's #{msg.match[1]}?"
+            if to_email == from_email
+                return msg.reply "High-fiving yourself is just clapping."
+            if amt > (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
+                return msg.reply "$#{amt} is more like a high-500. Think smaller."
 
-        # TODO: more noise
-        msg.send "WOOOOOO #{to_user.name}! #{from_user.name} is high-fiving you for #{reason}!"
+            # TODO: more noise
+            msg.send """
+            @channel WOOOOOO #{to_user}!
+            #{from_user} is high-fiving you for #{reason}!
+            """
 
-        if amt > 0
-            # Get an email address for sending the giftcard
-            email_fetcher to_user.id, (to_email) ->
-                msg.send "$#{amt} is on its way to #{to_email} as we speak!"
+            if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
+                msg.send "A $#{amt} gift card is on its way as we speak!"
+                # TODO: tangocard API
+
+        , (e1, e2) -> # error callback from email_fetcher
+            console.log "ERROR '#{e1}' '#{e2}'"
+            msg.reply "Who's #{msg.match[1]}?" unless e1
 
 class BaseApiApp
     constructor: (@robot, @baseurl, @queryopts) ->
@@ -50,9 +62,7 @@ class BaseApiApp
         @robot.http("#{@baseurl}#{endpoint}").query(@queryopts)
 
     get: (endpoint, callback) ->
-        console.log
         @requester(endpoint).get() (err, res, body) =>
-            console.log err, body
             try
                 json = JSON.parse body
             catch error

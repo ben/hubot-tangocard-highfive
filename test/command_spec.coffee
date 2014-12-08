@@ -21,9 +21,11 @@ prep = (done) ->
         # Some test users
         user = robot.brain.userForId "1",
             name: "mocha"
+            email: "mocha@example.com"
             room: "#mocha"
         robot.brain.userForId '2',
             name: 'foo'
+            email: 'foo@example.com'
             room: '#mocha'
         done()
     robot.run()
@@ -58,9 +60,7 @@ describe 'help', ->
 
 # Test the Tango Card API implementation
 describe 'tangocard api', ->
-    it 'should be true', (done) ->
-        expect(yes).to.equal true
-        do done
+    # TODO
 
 # Test the command itself
 describe 'highfive', ->
@@ -74,21 +74,21 @@ describe 'highfive', ->
 
     it "shouldn't let you send huge gifts", (done) ->
         message_response 'highfive @foo $5000 for nothing', 'reply', (e,strs) ->
-            expect(strs).to.contain '$5000'
+            expect(strs).to.match /\$5000.*smaller/i
             do done
 
     it 'should make some noise', (done) ->
         message_response 'highfive @foo for something', 'send', (e,strs) ->
-            expect(strs).to.contain 'WOO'
+            expect(strs).to.match /.*woo[\s\S]*\.gif/i
             do done
 
     it "should complain if it can't find a user", (done) ->
         message_response 'highfive @bar for nothing', 'reply', (e,strs) ->
-            expect(strs).to.contain "Who's @bar"
+            expect(strs).to.equal "Who's @bar?"
             do done
 
     it 'should announce the gift card', (done) ->
         message_response 'highfive @foo $25 for something', 'send', (e,strs) ->
-            if strs[..2] != 'WOO'
-                expect(strs).to.contain '2@example.com'
+            unless strs.match /woo/i
+                expect(strs).to.match /.*\$25.*card.*/i
                 do done
