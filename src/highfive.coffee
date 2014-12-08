@@ -51,6 +51,7 @@ module.exports = (robot) ->
             msg.send """
             @channel WOOOOOO #{to_user}!
             #{from_user} is high-fiving you for #{reason}!
+            #{msg.random GIFs}
             """
 
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
@@ -86,3 +87,39 @@ class SlackApp extends BaseApiApp
 
     getUser: (uid, callback) ->
         @get "users.info?user=#{uid}", callback
+
+# GIFs for celebration
+GIFs = [
+    'http://i.giphy.com/zl170rmVMCpEY.gif',
+    'http://i.giphy.com/yoJC2vEwxkwbMZmSCk.gif',
+    'http://i.giphy.com/Qh5dZDCFqr1dK.gif',
+    'http://i.giphy.com/GCLlQnV7wzKLu.gif',
+    'http://i.giphy.com/MhHXeM4SpKrpC.gif',
+    'http://i.giphy.com/Z7bxVQl7nWes.gif',
+    'http://i.giphy.com/ns8SCo6O6g7nO.gif',
+    'http://a.fod4.com/images/GifGuide/dancing/280sw007883.gif',
+    'http://a.fod4.com/images/GifGuide/dancing/pr2.gif',
+    'http://0.media.collegehumor.cvcdn.com/46/28/291cb0abc0c99142aace1353dc12b755-car-race-high-five.gif',
+    'http://2.media.collegehumor.cvcdn.com/75/26/b31d5b98a4a27537d075960b7b247773-giant-high-five-from-jackass.gif',
+    'http://2.media.collegehumor.cvcdn.com/84/67/ff88c44dec5f9c2747e30549a375d481-bear-high-five.gif',
+    'http://0.media.collegehumor.cvcdn.com/17/53/30709bc3c9b060baf771c0b2e2626f95-snow-white-high-five.gif',
+    'http://i.giphy.com/p3LmvxiO6noGc.gif',
+    'http://i.giphy.com/DYvroxifyHEmA.gif',
+    'http://i.giphy.com/kolvlRnXh8Jj2.gif',
+    'http://i.giphy.com/tX5iDEX1n1Xxe.gif',
+    'http://i.giphy.com/xeXEpUVvAxCV2.gif',
+    'http://i.giphy.com/UkhHIZ37IDRGo.gif',
+    'http://i.giphy.com/oUZqX2UgK2xnq.gif',
+    'http://a.fod4.com/images/GifGuide/dancing/163563561.gif',
+    'http://i.giphy.com/mEOjrcTumos80.gif',
+    'http://i.giphy.com/99dauSQPLUuIg.gif',
+    'http://i.giphy.com/3HICMfLGqgWRy.gif',
+    'http://i.giphy.com/GYU7rBEQtBGfe.gif',
+    'http://i.giphy.com/vXEeRBP3QeJ2w.gif',
+    'http://i.giphy.com/Cj3Ce7e8h2EKY.gif',
+    'http://i.giphy.com/3Xtt7hlXvUTvi.gif',
+    'http://i.giphy.com/1453cgfKvRLMyc.gif',
+    'http://i.giphy.com/WdxAL8nmOCQ5a.gif',
+    'http://a.fod4.com/images/GifGuide/dancing/tumblr_llatbbCeky1qbnthu.gif',
+    'http://i.giphy.com/FrDlVZMD96nzG.gif',
+]
