@@ -47,16 +47,16 @@ module.exports = (robot) ->
             if amt > (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
                 return msg.reply "$#{amt} is more like a high-500. Think smaller."
 
-            # TODO: more noise
+            # TODO: send to a configurable channel
             msg.send """
-            @channel WOOOOOO #{to_user}!
-            #{from_user} is high-fiving you for #{reason}!
+            @channel WOOOOOO! #{from_user} is high-fiving #{to_user} for #{reason}!
             #{msg.random GIFs}
             """
 
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
                 msg.send "A $#{amt} gift card is on its way as we speak!"
                 # TODO: tangocard API
+                # TODO: log to spreadsheet
 
         , (e1, e2) -> # error callback from email_fetcher
             console.log "ERROR '#{e1}' '#{e2}'"
