@@ -32,15 +32,19 @@ module.exports = (robot) ->
     email_fetcher = email_fetchers[process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE || 'slack']
 
     # Config UI serving
+    configpath = Path.join __dirname, '..', 'config'
     robot.router.get '/highfive/', (req, res) ->
         res.set 'Content-Type', 'text/html'
-        res.sendfile Path.join __dirname, '..', 'config', 'config.html'
+        res.sendfile Path.join configpath, 'config.html'
     robot.router.get '/highfive/config.css', (req, res) ->
         res.set 'Content-Type', 'text/css'
-        res.sendfile Path.join __dirname, '..', 'config', 'config.css'
+        res.sendfile Path.join configpath, 'config.css'
+    robot.router.get '/highfive/gridforms.js', (req, res) ->
+        res.set 'Content-Type', 'application/x-javascript'
+        res.sendfile Path.join configpath, 'gridforms.js'
     robot.router.get '/highfive/config.js', (req, res) ->
         res.set 'Content-Type', 'application/x-javascript'
-        cs = fs.readFileSync Path.join(__dirname, '..', 'config', 'config.coffee'), 'utf-8'
+        cs = fs.readFileSync Path.join(configpath, 'config.coffee'), 'utf-8'
         js = coffee.compile cs
         res.send js
 

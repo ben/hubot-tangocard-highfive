@@ -1,12 +1,32 @@
+<!DOCTYPE html>
+
 <html>
 <head>
     <title>Highfive Configuration</title>
 
     <link rel="stylesheet" type="text/css" href="config.css">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" charset="utf-8"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js" charset="utf-8"></script>
+    <script src="gridforms.js" charset="utf-8"></script>
     <script src="config.js" charset="utf-8"></script>
 </head>
 <body>
 
-    <h1>Heyoooo</h1>
+    <div class="grid-form">
+        <fieldset>
+        <legend>Form Section</legend>
+        <div data-row-span="2">
+            <div data-field-span="1">
+                <label>Field 1</label>
+                <input type="text">
+            </div>
+            <div data-field-span="1">
+                <label>Field 2</label>
+                <input type="text">
+            </div>
+        </div>
+    </fieldset>
+    </div>
 </body>
 </html>
