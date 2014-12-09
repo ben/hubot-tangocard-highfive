@@ -27,11 +27,14 @@ module.exports = (robot) ->
 
     email_fetcher = email_fetchers[process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE || 'slack']
 
+    # Config UI serving
+    robot.router.get '/highfive', (req, res) ->
+        res.send 'Heyooo!'
+
     # Ask for the config UI
     robot.respond /highfive config/, (msg) ->
         hostname = process.env.HUBOT_HOSTNAME || 'http://localhost:8080'
         msg.reply "#{hostname}/highfive"
-        # TODO: serve it up
 
     # The main responder
     robot.respond /highfive (@\S+)( \$(\d+))? for (.*)/, (msg) ->
