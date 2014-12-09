@@ -4,6 +4,7 @@
 # Commands:
 #   hubot highfive @<user> for <awesome thing> - makes a loud announcement in a public chatroom
 #   hubot highfive @<user> $<amount> for <awesome thing> - makes a loud announcement and sends the user an Amazon.com giftcard
+#   hubot highfive config - show URL for configuration UI
 #
 # Configuration:
 #   HUBOT_HIGHFIVE_EMAIL_SERVICE - Service for looking up email addresses by user names (defaults to 'slack')

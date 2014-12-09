@@ -48,8 +48,8 @@ describe 'help', ->
     beforeEach prep
     afterEach cleanup
 
-    it 'should have 2', (done) ->
-        expect(robot.helpCommands()).to.have.length 2
+    it 'should have 3', (done) ->
+        expect(robot.helpCommands()).to.have.length 3
         do done
 
     it 'should parse help', (done) ->
@@ -57,6 +57,7 @@ describe 'help', ->
         expected = [
             'hubot highfive @<user> $<amount> for <awesome thing> - makes a loud announcement and sends the user an Amazon.com giftcard',
             'hubot highfive @<user> for <awesome thing> - makes a loud announcement in a public chatroom',
+            'hubot highfive config - show URL for configuration UI'
         ]
         expect(expected).to.contain(x) for x in help
         do done
