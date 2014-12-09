@@ -10,12 +10,15 @@ nock = require 'nock'
 # Globals
 robot = user = {}
 
+# Test environment variables
+process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE = 'dummy'
+process.env.PORT = 8088
+process.env.HUBOT_HOSTNAME = 'http://localhost:8088'
+
 # Create a robot, load our script
-prep = (done) ->
-    robot = new Robot path.resolve(__dirname), 'shell', no, 'TestHubot'
+prep = (enableHttpd) -> (done) ->
+    robot = new Robot path.resolve(__dirname), 'shell', yes, 'TestHubot'
     robot.adapter.on 'connected', ->
-        # Dummy email service
-        process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE = 'dummy'
         # Project script
         robot.loadFile path.resolve('.'), 'index.coffee'
         # Some test users
@@ -29,9 +32,9 @@ prep = (done) ->
             room: '#mocha'
         done()
     robot.run()
-    robot
 
 cleanup = ->
+    robot.server?.close()
     robot.shutdown()
     nock.cleanAll()
 
@@ -42,7 +45,7 @@ message_response = (msg, evt, expecter) ->
 
 # Test help output
 describe 'help', ->
-    beforeEach prep
+    beforeEach prep(no)
     afterEach cleanup
 
     it 'should have 2', (done) ->
@@ -64,7 +67,7 @@ describe 'tangocard api', ->
 
 # Test the command itself
 describe 'highfive', ->
-    beforeEach prep
+    beforeEach prep(no)
     afterEach cleanup
 
     it "shouldn't let you high-five yourself", (done) ->
@@ -92,3 +95,12 @@ describe 'highfive', ->
             unless strs.match /woo/i
                 expect(strs).to.match /.*\$25.*card.*/i
                 do done
+
+describe 'config', ->
+    beforeEach prep(yes)
+    afterEach cleanup
+
+    it "should respond", (done) ->
+        message_response 'highfive config', 'reply', (e,strs) ->
+            expect(strs).to.match /localhost:8088\/highfive$/
+            do done

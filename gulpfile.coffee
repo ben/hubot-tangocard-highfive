@@ -9,3 +9,4 @@ gulp.task 'test', ->
 
 gulp.task 'watch', ->
     gulp.watch ['**/*.coffee'], ['test']
+        .on 'error', -> @emit 'end'
