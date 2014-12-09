@@ -1,1 +1,3 @@
-console.log 'Heyoooooooooooo'
+$ ->
+    $.getJSON 'values.json', (data) ->
+        console.log data

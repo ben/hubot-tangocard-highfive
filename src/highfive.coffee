@@ -48,6 +48,18 @@ module.exports = (robot) ->
         cs = fs.readFileSync Path.join(configpath, 'config.coffee'), 'utf-8'
         js = coffee.compile cs
         res.send js
+    robot.router.get '/highfive/values.json', (req, res) ->
+        res.set 'Content-Type', 'application/x-javascript'
+        data = {}
+        envvars = [
+            'HUBOT_HIGHFIVE_EMAIL_SERVICE',
+            'HUBOT_HIGHFIVE_ROOM',
+            'HUBOT_HIGHFIVE_AWARD_LIMIT',
+            # TODO: tangocard variables
+        ]
+        for v in envvars
+            data[v] = process.env[v]
+        res.send JSON.stringify data
 
     # Ask for the config UI
     robot.respond /highfive config/, (msg) ->
