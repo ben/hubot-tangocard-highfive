@@ -58,7 +58,7 @@ module.exports = (robot) ->
             # TODO: tangocard variables
         ]
         for v in envvars
-            data[v] = process.env[v]
+            data[v] = process.env[v] || ''
         res.send JSON.stringify data
 
     # Ask for the config UI

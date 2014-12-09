@@ -16,8 +16,9 @@ class MainViewModel
 
         @configoutput = ko.computed =>
             vars = []
-            for f in @fieldnames
-                vars.push "#{f}=#{@[f]()}"
+            for k in @fieldnames
+                v = @[k]()
+                vars.push "#{k}=#{v}" if v? and v != ''
             vars.join ' \\\n'
 
 $ ->
