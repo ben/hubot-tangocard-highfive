@@ -13,20 +13,49 @@
 </head>
 <body>
 
+    <h1>Highfive Configuration</h1>
+
     <div class="grid-form">
         <fieldset>
-        <legend>Form Section</legend>
-        <div data-row-span="2">
-            <div data-field-span="1">
-                <label>Field 1</label>
-                <input type="text">
+            <legend>General Settings</legend>
+            <div data-row-span="2">
+                <div data-field-span="1">
+                    <label>Email Address Service</label>
+                    <select data-bind="options: services, value: HUBOT_HIGHFIVE_EMAIL_SERVICE">
+                    </select>
+                </div>
+                <div data-field-span="1">
+                    <label>Announcement Room</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_ROOM,
+                                                  valueUpdate: 'input'">
+                </div>
             </div>
-            <div data-field-span="1">
-                <label>Field 2</label>
-                <input type="text">
+        </fieldset>
+
+        <br>
+        <fieldset>
+            <legend>Gift Card Settings</legend>
+            <div data-row-span="3">
+                <div data-field-span="1">
+                    <label>Award Limit (default 150)</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_AWARD_LIMIT,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                </div>
+                <div data-field-span="1">
+                </div>
             </div>
-        </div>
-    </fieldset>
+        </fieldset>
+
+        <br>
+        <fieldset>
+            <legend>Logging Settings</legend>
+        </fieldset>
     </div>
+
+    <h2>Output</h2>
+    <p>Copy and paste this to someone who can change Hubot's configuration:</p>
+    <textarea id="configoutput" data-bind="text: configoutput"></textarea>
 </body>
 </html>
