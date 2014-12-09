@@ -102,5 +102,5 @@ describe 'config', ->
 
     it "should respond", (done) ->
         message_response 'highfive config', 'reply', (e,strs) ->
-            expect(strs).to.match /localhost:8088\/highfive$/
+            expect(strs).to.match /localhost:8088\/highfive\/$/
             do done

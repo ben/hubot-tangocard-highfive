@@ -11,6 +11,10 @@
 #   HUBOT_HIGHFIVE_ROOM - Room for making noise when someone is high-fived. Defaults to the room the request was made in
 #   HUBOT_HIGHFIVE_AWARD_LIMIT - upper limit for giftcard awards. Set to 0 to disable giftcards. Default is 150.
 
+Path = require 'path'
+fs = require 'fs'
+coffee = require 'coffee-script'
+
 module.exports = (robot) ->
     # Services for getting emails from users
     email_fetchers =
@@ -28,13 +32,22 @@ module.exports = (robot) ->
     email_fetcher = email_fetchers[process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE || 'slack']
 
     # Config UI serving
-    robot.router.get '/highfive', (req, res) ->
-        res.send 'Heyooo!'
+    robot.router.get '/highfive/', (req, res) ->
+        res.set 'Content-Type', 'text/html'
+        res.sendfile Path.join __dirname, '..', 'config', 'config.html'
+    robot.router.get '/highfive/config.css', (req, res) ->
+        res.set 'Content-Type', 'text/css'
+        res.sendfile Path.join __dirname, '..', 'config', 'config.css'
+    robot.router.get '/highfive/config.js', (req, res) ->
+        res.set 'Content-Type', 'application/x-javascript'
+        cs = fs.readFileSync Path.join(__dirname, '..', 'config', 'config.coffee'), 'utf-8'
+        js = coffee.compile cs
+        res.send js
 
     # Ask for the config UI
     robot.respond /highfive config/, (msg) ->
         hostname = process.env.HUBOT_HOSTNAME || 'http://localhost:8080'
-        msg.reply "#{hostname}/highfive"
+        msg.reply "#{hostname}/highfive/"
 
     # The main responder
     robot.respond /highfive (@\S+)( \$(\d+))? for (.*)/, (msg) ->
