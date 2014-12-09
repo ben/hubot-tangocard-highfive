@@ -16,7 +16,7 @@ process.env.PORT = 8088
 process.env.HUBOT_HOSTNAME = 'http://localhost:8088'
 
 # Create a robot, load our script
-prep = (enableHttpd) -> (done) ->
+prep = (done) ->
     robot = new Robot path.resolve(__dirname), 'shell', yes, 'TestHubot'
     robot.adapter.on 'connected', ->
         # Project script
@@ -34,7 +34,7 @@ prep = (enableHttpd) -> (done) ->
     robot.run()
 
 cleanup = ->
-    robot.server?.close()
+    robot.server.close()
     robot.shutdown()
     nock.cleanAll()
 
@@ -45,7 +45,7 @@ message_response = (msg, evt, expecter) ->
 
 # Test help output
 describe 'help', ->
-    beforeEach prep(no)
+    beforeEach prep
     afterEach cleanup
 
     it 'should have 2', (done) ->
@@ -67,7 +67,7 @@ describe 'tangocard api', ->
 
 # Test the command itself
 describe 'highfive', ->
-    beforeEach prep(no)
+    beforeEach prep
     afterEach cleanup
 
     it "shouldn't let you high-five yourself", (done) ->
@@ -97,7 +97,7 @@ describe 'highfive', ->
                 do done
 
 describe 'config', ->
-    beforeEach prep(yes)
+    beforeEach prep
     afterEach cleanup
 
     it "should respond", (done) ->
