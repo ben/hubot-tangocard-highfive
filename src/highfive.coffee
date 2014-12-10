@@ -56,6 +56,13 @@ module.exports = (robot) ->
             'HUBOT_HIGHFIVE_ROOM',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
             # TODO: tangocard variables
+            'HUBOT_TANGOCARD_ROOTURL'
+            'HUBOT_TANGOCARD_USER',
+            'HUBOT_TANGOCARD_KEY',
+            'HUBOT_TANGOCARD_CC',
+            'HUBOT_TANGOCARD_AUTH',
+            'HUBOT_TANGOCARD_CUSTOMER',
+            'HUBOT_TANGOCARD_ACCOUNT',
         ]
         for v in envvars
             data[v] = process.env[v] || ''

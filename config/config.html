@@ -45,10 +45,33 @@
             <fieldset>
                 <legend>Tango Card Settings (optional)</legend>
 
-                <div data-row-span="1">
+                <div data-row-span="3">
+                    <div data-field-span="1">
+                        <label>Tango Card API Username</label>
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_USER,
+                                                      valueUpdate: 'input'">
+                    </div>
                     <div data-field-span="1">
                         <label>Tango Card API Key</label>
-                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_TANGOCARD_KEY,
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_KEY,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>Tango Card Root URL (default is production)</label>
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_ROOTURL,
+                                                      valueUpdate: 'input'">
+                    </div>
+                </div>
+
+                <div data-row-span="2">
+                    <div data-field-span="1">
+                        <label>Customer identifier</label>
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_CUSTOMER,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>Account identifier (default HubotHighfive)</label>
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_ACCOUNT,
                                                       valueUpdate: 'input'">
                     </div>
                 </div>
@@ -61,22 +84,22 @@
                     </div>
                     <div data-field-span="1">
                         <label>Security Code</label>
-                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_TANGOCARD_AUTH,
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_AUTH,
                                                       valueUpdate: 'input'">
                     </div>
                     <div data-field-span="1">
-                        <button data-bind="click: cc_go">Process</button>
+                        <button data-bind="click: tangocard_setup">Process</button>
                     </div>
                 </div>
 
-                <div data-row-span="1">
-                    <div data-field-span="1">
-                        <label>Tango Card credit card ID (use the row above to generate this)</label>
-                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_TANGOCARD_CC,
-                                                      valueUpdate: 'input'">
-                    </div>
-                </div>
-
+<!--                 <div data-row-span="1">
+    <div data-field-span="1">
+        <label>Tango Card credit card ID (use the row above to generate this)</label>
+        <input type="text" data-bind="value: HUBOT_TANGOCARD_CC,
+                                      valueUpdate: 'input'">
+    </div>
+</div>
+ -->
             </fieldset>
 
             <br><br>
