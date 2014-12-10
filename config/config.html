@@ -21,8 +21,8 @@
 
         <div class="grid-form">
             <fieldset>
-                <legend>Settings</legend>
-                <div data-row-span="2">
+                <legend>Plugin Settings</legend>
+                <div data-row-span="3">
                     <div data-field-span="1">
                         <label>Email Address Service</label>
                         <select data-bind="options: services, value: HUBOT_HIGHFIVE_EMAIL_SERVICE">
@@ -33,19 +33,47 @@
                         <input type="text" data-bind="value: HUBOT_HIGHFIVE_ROOM,
                                                       valueUpdate: 'input'">
                     </div>
-                </div>
-
-                <div data-row-span="3">
                     <div data-field-span="1">
                         <label>Award Limit (default 150)</label>
                         <input type="text" data-bind="value: HUBOT_HIGHFIVE_AWARD_LIMIT,
                                                       valueUpdate: 'input'">
                     </div>
+                </div>
+
+            </fieldset>
+            <br>
+            <fieldset>
+                <legend>Tango Card Settings (optional)</legend>
+
+                <div data-row-span="1">
                     <div data-field-span="1">
-                        (TODO)
+                        <label>Tango Card API Key</label>
+                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_TANGOCARD_KEY,
+                                                      valueUpdate: 'input'">
+                    </div>
+                </div>
+
+                <div data-row-span="5">
+                    <div data-field-span="3">
+                        <label>Credit Card Number (Hubot doesn't remember this)</label>
+                        <input type="text" data-bind="value: cc_number,
+                                                      valueUpdate: 'input'">
                     </div>
                     <div data-field-span="1">
-                        (TODO)
+                        <label>Security Code</label>
+                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_TANGOCARD_AUTH,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <button data-bind="click: cc_go">Process</button>
+                    </div>
+                </div>
+
+                <div data-row-span="1">
+                    <div data-field-span="1">
+                        <label>Tango Card credit card ID (use the row above to generate this)</label>
+                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_TANGOCARD_CC,
+                                                      valueUpdate: 'input'">
                     </div>
                 </div>
 
