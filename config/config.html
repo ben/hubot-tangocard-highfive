@@ -13,166 +13,150 @@
     <script src="gridforms.js" charset="utf-8"></script>
     <script src="config.js" charset="utf-8"></script>
 </head>
-<body>
+<div class="container">
 
-    <div class="container">
+    <h1>Highfive Configuration</h1>
 
-        <h1>Highfive Configuration</h1>
-
-        <div class="grid-form">
-            <fieldset>
-                <legend>Plugin Settings</legend>
-                <div data-row-span="3">
-                    <div data-field-span="1">
-                        <label>Email Address Service</label>
-                        <select data-bind="options: services, value: HUBOT_HIGHFIVE_EMAIL_SERVICE">
-                        </select>
-                    </div>
-                    <div data-field-span="1">
-                        <label>Announcement Room</label>
-                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_ROOM,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Award Limit (default 150)</label>
-                        <input type="text" data-bind="value: HUBOT_HIGHFIVE_AWARD_LIMIT,
-                                                      valueUpdate: 'input'">
-                    </div>
+    <div class="grid-form">
+        <fieldset>
+            <legend>Plugin Settings</legend>
+            <div data-row-span="3">
+                <div data-field-span="1">
+                    <label>Email Address Service</label>
+                    <select data-bind="options: services, value: HUBOT_HIGHFIVE_EMAIL_SERVICE">
+                    </select>
                 </div>
-
-            </fieldset>
-            <br>
-            <fieldset>
-                <legend>Tango Card Settings (<span data-bind="text: cardnote,
-                                                              css: cardclass"></span>)</legend>
-
-                <div data-row-span="3">
-                    <div data-field-span="1">
-                        <label>Tango Card API Username</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_USER,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Tango Card API Key</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_KEY,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Tango Card Root URL (default is production)</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_ROOTURL,
-                                                      valueUpdate: 'input'">
-                    </div>
+                <div data-field-span="1">
+                    <label>Announcement Room</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_ROOM,
+                                                  valueUpdate: 'input'">
                 </div>
-
-                <div data-row-span="3">
-                    <div data-field-span="1">
-                        <label>Customer identifier</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_CUSTOMER,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Account identifier (default HubotHighfive)</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_ACCOUNT,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Account email</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_EMAIL,
-                                                      valueUpdate: 'input'">
-                    </div>
+                <div data-field-span="1">
+                    <label>Award Limit (default 150)</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_AWARD_LIMIT,
+                                                  valueUpdate: 'input'">
                 </div>
+            </div>
 
-                <div data-row-span="5">
-                    <div data-field-span="3">
-                        <label>Credit Card Number (Hubot doesn't remember this)</label>
-                        <input type="text" data-bind="value: cc_number,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Expiration (YYYY-MM)</label>
-                        <input type="text" data-bind="value: cc_expiration,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Security Code</label>
-                        <input type="text" data-bind="value: HUBOT_TANGOCARD_AUTH,
-                                                      valueUpdate: 'input'">
-                    </div>
+        </fieldset>
+        <br>
+        <fieldset>
+            <legend>Tango Card Settings (<span data-bind="text: cardnote,
+                                                          css: cardclass"></span>)</legend>
+
+            <div data-row-span="3">
+                <div data-field-span="1">
+                    <label>Tango Card API Username</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_USER,
+                                                  valueUpdate: 'input'">
                 </div>
-
-                <div data-row-span="2">
-                    <div data-field-span="1">
-                        <label>First name</label>
-                        <input type="text" data-bind="value: cc_fname,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>Last name</label>
-                        <input type="text" data-bind="value: cc_lname,
-                                                      valueUpdate: 'input'">
-                    </div>
+                <div data-field-span="1">
+                    <label>Tango Card API Key</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_KEY,
+                                                  valueUpdate: 'input'">
                 </div>
-
-                <div data-row-span="1">
-                    <div data-field-span="1">
-                        <label>Billing Address</label>
-                        <input type="text" data-bind="value: cc_address,
-                                                      valueUpdate: 'input'">
-                    </div>
+                <div data-field-span="1">
+                    <label>Tango Card Root URL (default is production)</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_ROOTURL,
+                                                  valueUpdate: 'input'">
                 </div>
+            </div>
 
-                <div data-row-span="4">
-                    <div data-field-span="1">
-                        <label>City</label>
-                        <input type="text" data-bind="value: cc_city,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>State</label>
-                        <input type="text" data-bind="value: cc_state,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>ZIP</label>
-                        <input type="text" data-bind="value: cc_zip,
-                                                      valueUpdate: 'input'">
-                    </div>
-                    <div data-field-span="1">
-                        <label>country</label>
-                        <input type="text" data-bind="value: cc_country,
-                                                      valueUpdate: 'input'">
-                    </div>
+            <div data-row-span="3">
+                <div data-field-span="1">
+                    <label>Customer identifier</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_CUSTOMER,
+                                                  valueUpdate: 'input'">
                 </div>
-
-                <div data-row-span="1">
-                    <div data-field-span="1">
-                        <button data-bind="click: tangocard_setup">Process</button>
-                        &nbsp;
-                        <p data-bind="text: tangocard_status,
-                                      css: tangocard_class"></p>
-                    </div>
+                <div data-field-span="1">
+                    <label>Account identifier (default HubotHighfive)</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_ACCOUNT,
+                                                  valueUpdate: 'input'">
                 </div>
+                <div data-field-span="1">
+                    <label>Account email</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_EMAIL,
+                                                  valueUpdate: 'input'">
+                </div>
+            </div>
 
-<!--                 <div data-row-span="1">
-    <div data-field-span="1">
-        <label>Tango Card credit card ID (use the row above to generate this)</label>
-        <input type="text" data-bind="value: HUBOT_TANGOCARD_CC,
-                                      valueUpdate: 'input'">
+            <div data-row-span="5">
+                <div data-field-span="3">
+                    <label>Credit Card Number (Hubot doesn't remember this)</label>
+                    <input type="text" data-bind="value: cc_number,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>Expiration (YYYY-MM)</label>
+                    <input type="text" data-bind="value: cc_expiration,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>Security Code</label>
+                    <input type="text" data-bind="value: HUBOT_TANGOCARD_AUTH,
+                                                  valueUpdate: 'input'">
+                </div>
+            </div>
+
+            <div data-row-span="2">
+                <div data-field-span="1">
+                    <label>First name</label>
+                    <input type="text" data-bind="value: cc_fname,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>Last name</label>
+                    <input type="text" data-bind="value: cc_lname,
+                                                  valueUpdate: 'input'">
+                </div>
+            </div>
+
+            <div data-row-span="1">
+                <div data-field-span="1">
+                    <label>Billing Address</label>
+                    <input type="text" data-bind="value: cc_address,
+                                                  valueUpdate: 'input'">
+                </div>
+            </div>
+
+            <div data-row-span="4">
+                <div data-field-span="1">
+                    <label>City</label>
+                    <input type="text" data-bind="value: cc_city,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>State</label>
+                    <input type="text" data-bind="value: cc_state,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>ZIP</label>
+                    <input type="text" data-bind="value: cc_zip,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>country</label>
+                    <input type="text" data-bind="value: cc_country,
+                                                  valueUpdate: 'input'">
+                </div>
+            </div>
+
+        </fieldset>
+
+        <button data-bind="click: tangocard_setup">Process</button>
+        &nbsp;
+        <p data-bind="text: tangocard_status,
+                      css: tangocard_class"></p>
+
+        <br><br>
+        <fieldset>
+            <legend>Output</legend>
+            <p>Copy and paste this to someone who can change Hubot's configuration:</p>
+            <textarea id="configoutput" data-bind="text: configoutput"></textarea>
+
+        </fieldset>
     </div>
+
 </div>
- -->
-            </fieldset>
-
-            <br><br>
-            <fieldset>
-                <legend>Output</legend>
-                <p>Copy and paste this to someone who can change Hubot's configuration:</p>
-                <textarea id="configoutput" data-bind="text: configoutput"></textarea>
-
-            </fieldset>
-        </div>
-
-    </div>
-
-    </body>
 </html>
