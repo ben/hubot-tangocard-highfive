@@ -21,15 +21,24 @@ class MainViewModel
         for f in @fieldnames
             @[f] = ko.observable()
 
+        @cc_number = ko.observable ''
+        @cc_expiration = ko.observable ''
+        @cc_fname = ko.observable ''
+        @cc_lname = ko.observable ''
+        @cc_address = ko.observable ''
+        @cc_city = ko.observable ''
+        @cc_state = ko.observable ''
+        @cc_zip = ko.observable ''
+        @cc_country = ko.observable ''
+        @tangocard_status = ko.observable ''
+        @tangocard_class = ko.observable ''
+
         @configoutput = ko.computed =>
             vars = []
             for k in @fieldnames
                 v = @[k]()
                 vars.push "#{k}='#{v}'" if v? and v != ''
             vars.join ' \\\n'
-
-        # Credit card stuff
-        @cc_number = ko.observable ''
 
     basic_auth: ->
         user = @HUBOT_TANGOCARD_USER()
@@ -59,37 +68,84 @@ class MainViewModel
             headers:
                 Authorization: @basic_auth()
 
+    set_tangocard_error: (msg) ->
+        @tangocard_status msg
+        @tangocard_class 'fail'
+
     tangocard_setup: ->
+        cc = @HUBOT_TANGOCARD_CC()
         auth = @HUBOT_TANGOCARD_AUTH()
         cust = @HUBOT_TANGOCARD_CUSTOMER()
         acct = @HUBOT_TANGOCARD_ACCOUNT() || 'HubotHighfive'
         email = @HUBOT_TANGOCARD_EMAIL()
 
+        @tangocard_class ''
+        @tangocard_status 'Checking customer/account status...'
+
         # TODO: validate inputs
 
         # Check the account status
         setupAccount = $.Deferred()
-        @tangocard_get "accounts/#{cust}/#{acct}", (resp) ->
-            console.log "Account exists"
+        @tangocard_get "accounts/#{cust}/#{acct}"
+        , (resp) ->
             setupAccount.resolve()
-        , =>
-            console.log "Account doesn't exist; creating"
+        , (xhr, status, err) =>
+            if xhr.status == 401
+                @set_tangocard_error 'Invalid credentials'
+                return setupAccount.reject()
+            if xhr.status != 404
+                @set_tangocard_error "Error: #{err}"
+                return setupAccount.reject()
+
             @tangocard_post 'accounts',
                 customer: cust
                 identifier: acct
                 email: email
             , (resp) ->
-                console.log "Success."
                 setupAccount.resolve()
-            , (xhr, status, err) ->
-                console.log "Error creating account: #{status} / #{err}"
+            , (xhr, status, err) =>
+                @tangocard_status "Error creating account: #{xhr.responseJSON.invalid_inputs_message}"
+                @tangocard_class 'fail'
                 setupAccount.reject()
 
-        # TODO: create the credit card
-        setupAccount.then ->
-            console.log "Account setup done"
 
-        @HUBOT_TANGOCARD_CC "(something with #{auth})"
+        # TODO: create the credit card
+        setupAccount.then =>
+            # Get the current IP address for the tangocard API
+            @tangocard_status 'Registering credit card...'
+            $.ajax 'http://jsonip.com/'
+        .then (jsonip) =>
+            # Create the credit card
+            data =
+                customer: cust
+                account_identifier: acct
+                client_ip: jsonip.ip
+                credit_card:
+                    number: @cc_number()
+                    security_code: auth
+                    expiration: @cc_expiration()
+                    billing_address:
+                        f_name: @cc_fname()
+                        l_name: @cc_lname()
+                        address: @cc_address()
+                        city: @cc_city()
+                        state: @cc_state()
+                        zip: @cc_zip()
+                        country: @cc_country()
+                        email: email
+            @tangocard_post 'cc_register', data
+            , (resp) =>
+                console.log resp
+                @HUBOT_TANGOCARD_CC resp.cc_token
+                @tangocard_status 'Success!'
+                @tangocard_class 'success'
+
+            , (xhr, status, err) =>
+                console.log xhr.responseJSON
+                if xhr.status == 400 and xhr.responseJSON.denial_code == 'CC_DUPREGISTER'
+                    return @set_tangocard_error 'This card is already registered. Contact Tango Card to have it removed.'
+                if xhr.responseJSON?.denial_message?
+                    return @set_tangocard_error xhr.responseJSON.denial_message
 
 $ ->
     window.vm = new MainViewModel()

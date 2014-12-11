@@ -5,10 +5,10 @@
     <title>Highfive Configuration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Raleway:100,400,300,600' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="config.css">
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" charset="utf-8"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js" charset="utf-8"></script>
     <script src="gridforms.js" charset="utf-8"></script>
     <script src="config.js" charset="utf-8"></script>
@@ -88,12 +88,67 @@
                                                       valueUpdate: 'input'">
                     </div>
                     <div data-field-span="1">
+                        <label>Expiration (YYYY-MM)</label>
+                        <input type="text" data-bind="value: cc_expiration,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
                         <label>Security Code</label>
                         <input type="text" data-bind="value: HUBOT_TANGOCARD_AUTH,
                                                       valueUpdate: 'input'">
                     </div>
+                </div>
+
+                <div data-row-span="2">
+                    <div data-field-span="1">
+                        <label>First name</label>
+                        <input type="text" data-bind="value: cc_fname,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>Last name</label>
+                        <input type="text" data-bind="value: cc_lname,
+                                                      valueUpdate: 'input'">
+                    </div>
+                </div>
+
+                <div data-row-span="1">
+                    <div data-field-span="1">
+                        <label>Billing Address</label>
+                        <input type="text" data-bind="value: cc_address,
+                                                      valueUpdate: 'input'">
+                    </div>
+                </div>
+
+                <div data-row-span="4">
+                    <div data-field-span="1">
+                        <label>City</label>
+                        <input type="text" data-bind="value: cc_city,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>State</label>
+                        <input type="text" data-bind="value: cc_state,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>ZIP</label>
+                        <input type="text" data-bind="value: cc_zip,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>country</label>
+                        <input type="text" data-bind="value: cc_country,
+                                                      valueUpdate: 'input'">
+                    </div>
+                </div>
+
+                <div data-row-span="1">
                     <div data-field-span="1">
                         <button data-bind="click: tangocard_setup">Process</button>
+                        &nbsp;
+                        <span data-bind="text: tangocard_status,
+                                         css: tangocard_class"></span>
                     </div>
                 </div>
 
