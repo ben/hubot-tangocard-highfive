@@ -43,7 +43,8 @@
             </fieldset>
             <br>
             <fieldset>
-                <legend>Tango Card Settings (optional)</legend>
+                <legend>Tango Card Settings (<span data-bind="text: cardnote,
+                                                              css: cardclass"></span>)</legend>
 
                 <div data-row-span="3">
                     <div data-field-span="1">
@@ -147,8 +148,8 @@
                     <div data-field-span="1">
                         <button data-bind="click: tangocard_setup">Process</button>
                         &nbsp;
-                        <span data-bind="text: tangocard_status,
-                                         css: tangocard_class"></span>
+                        <p data-bind="text: tangocard_status,
+                                      css: tangocard_class"></p>
                     </div>
                 </div>
 

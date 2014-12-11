@@ -32,6 +32,12 @@ class MainViewModel
         @cc_country = ko.observable ''
         @tangocard_status = ko.observable ''
         @tangocard_class = ko.observable ''
+        @cardnote = ko.observable 'optional'
+        @cardclass = ko.computed =>
+            if @cardnote() == 'optional'
+                ''
+            else
+                'success'
 
         @configoutput = ko.computed =>
             vars = []
@@ -141,11 +147,12 @@ class MainViewModel
                 @tangocard_class 'success'
 
             , (xhr, status, err) =>
-                console.log xhr.responseJSON
-                if xhr.status == 400 and xhr.responseJSON.denial_code == 'CC_DUPREGISTER'
+                json = xhr.responseJSON
+                if xhr.responseJSON.denial_code == 'CC_DUPREGISTER'
                     return @set_tangocard_error 'This card is already registered. Contact Tango Card to have it removed.'
-                if xhr.responseJSON?.denial_message?
-                    return @set_tangocard_error xhr.responseJSON.denial_message
+
+                errmsg = json.invalid_inputs_message || json.error_message || json.denial_message
+                return @set_tangocard_error errmsg
 
 $ ->
     window.vm = new MainViewModel()
@@ -154,6 +161,8 @@ $ ->
         console.log data
         for k,v of data
             vm[k](v)
+        if (data.HUBOT_TANGOCARD_CC || '') != ''
+            vm.cardnote 'already completed'
 
     ko.applyBindings vm
 
