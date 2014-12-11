@@ -22,7 +22,8 @@ module.exports = (robot) ->
         slack: (username1, username2, callback) ->
             new SlackApp(robot).listUsers (resp) ->
                 grabber = (name) ->
-                    (x.profile.email for x in resp.members when x.name == name)[0]
+                    (x for x in resp.members when x.name == name)[0]?.profile.email
+                return callback(null, null) unless resp.members?
                 [e1, e2] = (grabber(u) for u in [username1, username2])
                 callback e1, e2
         dummy: (username1, username2, callback) ->
@@ -55,7 +56,6 @@ module.exports = (robot) ->
             'HUBOT_HIGHFIVE_EMAIL_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
-            # TODO: tangocard variables
             'HUBOT_TANGOCARD_ROOTURL'
             'HUBOT_TANGOCARD_USER',
             'HUBOT_TANGOCARD_KEY',
@@ -84,7 +84,7 @@ module.exports = (robot) ->
         email_fetcher from_user, to_user, (from_email, to_email) ->
             # Safety checks:
             # - Don't target a nonexistent user
-            # - Don't send money to yourself
+            # - Don't target yourself
             # - $150 or less
             # - Any others?
             unless to_email
@@ -96,27 +96,64 @@ module.exports = (robot) ->
 
             # TODO: send to a configurable channel
             msg.send """
-            @channel WOOOOOO! #{from_user} is high-fiving #{to_user} for #{reason}!
             #{msg.random GIFs}
+            @channel WOOOOOO! #{from_user} is high-fiving #{to_user} for #{reason}!
             """
 
+
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
-                msg.send "A $#{amt} gift card is on its way as we speak!"
-                # TODO: tangocard API
-                # TODO: log to spreadsheet
+                tango = new TangoApp(robot)
+                cust = process.env.HUBOT_TANGOCARD_CUSTOMER
+                acct = process.env.HUBOT_TANGOCARD_ACCOUNT
+
+                tango.getAccountStatus cust, acct, (resp) ->
+                    unless resp.success
+                        return msg.send "(Problem getting Tango Card status: '#{resp.error_message}'. You might want 'highfive config'.)"
+                    return sendCard() if resp.account.available_balance/100 >= amt
+
+                    # Insufficient balance, attempt to fund the account
+                    amtToFund = (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150) * 2 * 100 # in cents
+                    cc = process.env.HUBOT_TANGOCARD_CC
+                    auth = process.env.HUBOT_TANGOCARD_AUTH
+                    robot.http('http://jsonip.com').get() (err, res, body) ->
+                        jsonip = JSON.parse body
+
+                        tango.fundAccount cust, acct, amtToFund, jsonip.ip, cc, auth, (resp) ->
+                            unless resp.success
+                                return msg.send "(Problem funding Tango Card account: '#{resp.denial_message}'. You might want 'highfive config'.)"
+                            return sendCard() if resp.success
+
+                sendCard = ->
+                    message = "#{from_user} has high-fived you for #{reason}!"
+                    tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_email, message, (resp) ->
+                        unless resp.success
+                            errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
+                            return msg.send "(Problem ordering gift card: '#{errmsg}'. You might want 'highfive config'.)"
+                        console.log resp
+                        msg.send "A $#{25} gift card is on its way!"
+                        # TODO: log to spreadsheet
 
         , (e1, e2) -> # error callback from email_fetcher
             console.log "ERROR '#{e1}' '#{e2}'"
             msg.reply "Who's #{msg.match[1]}?" unless e1
 
 class BaseApiApp
-    constructor: (@robot, @baseurl, @queryopts) ->
+    constructor: (@robot, @baseurl, @opts) ->
 
     requester: (endpoint) ->
-        @robot.http("#{@baseurl}#{endpoint}").query(@queryopts)
+        @robot.http("#{@baseurl}#{endpoint}").headers(@opts).query(@opts)
 
     get: (endpoint, callback) ->
-        @requester(endpoint).get() (err, res, body) =>
+        @requester(endpoint).get() (err, res, body) ->
+            try
+                json = JSON.parse body
+            catch error
+                console.log "API error: #{err}"
+            callback json
+
+    post: (endpoint, data, callback) ->
+        data = JSON.stringify data
+        @requester(endpoint).post(data) (err, res, body) ->
             try
                 json = JSON.parse body
             catch error
@@ -134,6 +171,46 @@ class SlackApp extends BaseApiApp
 
     getUser: (uid, callback) ->
         @get "users.info?user=#{uid}", callback
+
+# Tango Card API helper class
+class TangoApp extends BaseApiApp
+    constructor: (robot) ->
+        user = process.env.HUBOT_TANGOCARD_USER
+        pass = process.env.HUBOT_TANGOCARD_KEY
+        auth = "Basic " + new Buffer("#{user}:#{pass}").toString('base64')
+        super robot, process.env.HUBOT_TANGOCARD_ROOTURL || 'https://api.tangocard.com/raas/v1/',
+            Authorization: auth
+
+    getAccountStatus: (cust, acct, callback) ->
+        @get "accounts/#{cust}/#{acct}", callback
+
+    fundAccount: (cust, acct, amt, ip, cc, auth, callback) ->
+        @post 'cc_fund',
+            customer: cust
+            account_identifier: acct
+            amount: amt
+            client_ip: ip
+            cc_token: cc
+            security_code: auth
+        , callback
+
+    orderAmazonDotComCard: (cust, acct, campaign, amt, from, subject, to, email, message, callback) ->
+        data =
+            customer: cust
+            account_identifier: acct
+            campaign: campaign
+            recipient:
+                name: to
+                email: email
+            sku: "AMZN-E-V-STD"
+            amount: amt
+            reward_from: from
+            reward_subject: subject
+            reward_message: message
+            send_reward: true
+        console.log data
+        @post 'orders', data, callback
+
 
 # GIFs for celebration
 GIFs = [
