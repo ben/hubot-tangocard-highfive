@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div data-row-span="2">
+                <div data-row-span="3">
                     <div data-field-span="1">
                         <label>Customer identifier</label>
                         <input type="text" data-bind="value: HUBOT_TANGOCARD_CUSTOMER,
@@ -72,6 +72,11 @@
                     <div data-field-span="1">
                         <label>Account identifier (default HubotHighfive)</label>
                         <input type="text" data-bind="value: HUBOT_TANGOCARD_ACCOUNT,
+                                                      valueUpdate: 'input'">
+                    </div>
+                    <div data-field-span="1">
+                        <label>Account email</label>
+                        <input type="text" data-bind="value: HUBOT_TANGOCARD_EMAIL,
                                                       valueUpdate: 'input'">
                     </div>
                 </div>

@@ -15,6 +15,7 @@ class MainViewModel
             'HUBOT_TANGOCARD_AUTH',
             'HUBOT_TANGOCARD_CUSTOMER',
             'HUBOT_TANGOCARD_ACCOUNT',
+            'HUBOT_TANGOCARD_EMAIL',
         ]
 
         for f in @fieldnames
@@ -24,32 +25,71 @@ class MainViewModel
             vars = []
             for k in @fieldnames
                 v = @[k]()
-                vars.push "#{k}=#{v}" if v? and v != ''
+                vars.push "#{k}='#{v}'" if v? and v != ''
             vars.join ' \\\n'
 
         # Credit card stuff
         @cc_number = ko.observable ''
 
-    tangocard_get: (url, callback) ->
-        user = @HUBOT_HIGHFIVE_TANGOCARD_USER()
-        pass = @HUBOT_HIGHFIVE_TANGOCARD_KEY()
+    basic_auth: ->
+        user = @HUBOT_TANGOCARD_USER()
+        pass = @HUBOT_TANGOCARD_KEY()
+        "Basic " + btoa(user + ":" + pass)
+
+    tangocard_get: (url, success, error) ->
+        fullurl = @HUBOT_TANGOCARD_ROOTURL() + url
         $.ajax
             type: 'GET'
-            url: url
-            success: callback
+            url: fullurl
+            dataType: 'json'
+            success: success
+            error: error
             headers:
-                Authorization: "Basic " + btoa(user + ":" + pass)
+                Authorization: @basic_auth()
+
+    tangocard_post: (url, data, success, error) ->
+        fullurl = @HUBOT_TANGOCARD_ROOTURL() + url
+        $.ajax
+            type: 'POST'
+            url: fullurl
+            dataType: 'json'
+            success: success
+            error: error
+            data: JSON.stringify data
+            headers:
+                Authorization: @basic_auth()
 
     tangocard_setup: ->
-        auth = @HUBOT_HIGHFIVE_TANGOCARD_AUTH()
-        cust = @HUBOT_HIGHFIVE_TANGOCARD_CUSTOMER()
-        acct = @HUBOT_HIGHFIVE_TANGOCARD_ACCOUNT()
+        auth = @HUBOT_TANGOCARD_AUTH()
+        cust = @HUBOT_TANGOCARD_CUSTOMER()
+        acct = @HUBOT_TANGOCARD_ACCOUNT() || 'HubotHighfive'
+        email = @HUBOT_TANGOCARD_EMAIL()
 
         # TODO: validate inputs
 
-        # TODO: Add an account if it doesn't already exist
+        # Check the account status
+        setupAccount = $.Deferred()
+        @tangocard_get "accounts/#{cust}/#{acct}", (resp) ->
+            console.log "Account exists"
+            setupAccount.resolve()
+        , =>
+            console.log "Account doesn't exist; creating"
+            @tangocard_post 'accounts',
+                customer: cust
+                identifier: acct
+                email: email
+            , (resp) ->
+                console.log "Success."
+                setupAccount.resolve()
+            , (xhr, status, err) ->
+                console.log "Error creating account: #{status} / #{err}"
+                setupAccount.reject()
 
-        @HUBOT_HIGHFIVE_TANGOCARD_CC "(something with #{auth})"
+        # TODO: create the credit card
+        setupAccount.then ->
+            console.log "Account setup done"
+
+        @HUBOT_TANGOCARD_CC "(something with #{auth})"
 
 $ ->
     window.vm = new MainViewModel()
