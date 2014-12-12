@@ -78,6 +78,15 @@ module.exports = (robot) ->
         hostname = process.env.HUBOT_HOSTNAME || 'http://localhost:8080'
         msg.reply "#{hostname}/highfive/"
 
+    # Debug echo helper
+    if process.env.HUBOT_HIGHFIVE_DEBUG?
+        robot.hear /.*/, (msg) ->
+            msg.send """
+            ```
+            #{JSON.stringify msg, null, 2}
+            ```
+            """
+
     # The main responder
     robot.respond /highfive (@\S+)( \$(\d+))? for (.*)/, (msg) ->
         from_user = msg.message.user.name
@@ -133,7 +142,7 @@ module.exports = (robot) ->
                             return sendCard() if resp.success
 
                 sendCard = ->
-                    message = "#{from_user} has high-fived you for #{reason}!"
+                    message = "High five for #{reason}!"
                     tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_email, message, (resp) ->
                         debug msg, "order response `#{resp}`"
                         unless resp.success
