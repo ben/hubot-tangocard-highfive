@@ -24,9 +24,11 @@ module.exports = (robot) ->
     # Services for getting emails from users
     email_fetchers =
         slack: (username1, username2, callback) ->
+            # Slack decorates some usernames
+            [username1,username2] = (u.replace(/^[<@]*|[>]$/gm, '') for u in [username1, username2])
             new SlackApp(robot).listUsers (resp) ->
                 grabber = (name) ->
-                    (x for x in resp.members when x.name == name)[0]?.profile.email
+                    (x for x in resp.members when name in [x.name, x.id])[0]?.profile.email
                 return callback(null, null) unless resp.members?
                 [e1, e2] = (grabber(u) for u in [username1, username2])
                 callback e1, e2
@@ -88,7 +90,7 @@ module.exports = (robot) ->
             """
 
     # The main responder
-    robot.respond /highfive (@\S+)( \$(\d+))? for (.*)/, (msg) ->
+    robot.respond /highfive (.+?)( \$(\d+))? for (.*)/, (msg) ->
         from_user = msg.message.user.name
         to_user = msg.match[1][1..]
         amt = parseInt(msg.match[3] or 0)
@@ -144,7 +146,7 @@ module.exports = (robot) ->
                 sendCard = ->
                     message = "High five for #{reason}!"
                     tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_email, message, (resp) ->
-                        debug msg, "order response `#{resp}`"
+                        debug msg, "order response `#{JSON.stringify resp}`"
                         unless resp.success
                             errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
                             return msg.send "(Problem ordering gift card: '#{errmsg}'. You might want 'highfive config'.)"
