@@ -112,6 +112,8 @@ module.exports = (robot) ->
                 return msg.reply "$#{amt} is more like a high-500. Think smaller."
 
             # TODO: send to a configurable channel
+            # TODO: fix channel mention (fetch ID on startup? service?)
+            # TODO: fix user mentions
             msg.send """
             #{msg.random GIFs}
             @channel WOOOOOO! #{from_user} is high-fiving #{to_user} for #{reason}!
@@ -150,7 +152,7 @@ module.exports = (robot) ->
                         unless resp.success
                             errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
                             return msg.send "(Problem ordering gift card: '#{errmsg}'. You might want 'highfive config'.)"
-                        msg.send "A $#{25} gift card is on its way!"
+                        msg.send "A $#{amt} gift card is on its way!"
                         # TODO: log to spreadsheet
 
         , (e1, e2) -> # error callback from email_fetcher
