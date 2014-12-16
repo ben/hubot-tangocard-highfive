@@ -16,6 +16,9 @@ Path = require 'path'
 fs = require 'fs'
 coffee = require 'coffee-script'
 
+TangoApp = require './lib/tangocard'
+SlackApp = require './lib/slack'
+
 debug = ->
 if process.env.HUBOT_HIGHFIVE_DEBUG?
     debug = (msg, txt) -> msg.send "DEBUG " + txt
@@ -158,79 +161,6 @@ module.exports = (robot) ->
         , (e1, e2) -> # error callback from email_fetcher
             console.log "ERROR '#{e1}' '#{e2}'"
             msg.reply "Who's #{msg.match[1]}?" unless e1
-
-class BaseApiApp
-    constructor: (@robot, @baseurl, @opts) ->
-
-    requester: (endpoint) ->
-        @robot.http("#{@baseurl}#{endpoint}").headers(@opts).query(@opts)
-
-    get: (endpoint, callback) ->
-        @requester(endpoint).get() (err, res, body) ->
-            try
-                json = JSON.parse body
-            catch error
-                console.log "API error: #{err}"
-            callback json
-
-    post: (endpoint, data, callback) ->
-        data = JSON.stringify data
-        @requester(endpoint).post(data) (err, res, body) ->
-            try
-                json = JSON.parse body
-            catch error
-                console.log "API error: #{err}"
-            callback json
-
-# Slack API helper class
-class SlackApp extends BaseApiApp
-    constructor: (robot) ->
-        super robot, 'https://slack.com/api/',
-            token: process.env.HUBOT_SLACK_API_TOKEN
-
-    listUsers: (callback) ->
-        @get 'users.list', callback
-
-    getUser: (uid, callback) ->
-        @get "users.info?user=#{uid}", callback
-
-# Tango Card API helper class
-class TangoApp extends BaseApiApp
-    constructor: (robot) ->
-        user = process.env.HUBOT_TANGOCARD_USER
-        pass = process.env.HUBOT_TANGOCARD_KEY
-        auth = "Basic " + new Buffer("#{user}:#{pass}").toString('base64')
-        super robot, process.env.HUBOT_TANGOCARD_ROOTURL || 'https://api.tangocard.com/raas/v1/',
-            Authorization: auth
-
-    getAccountStatus: (cust, acct, callback) ->
-        @get "accounts/#{cust}/#{acct}", callback
-
-    fundAccount: (cust, acct, amt, ip, cc, auth, callback) ->
-        @post 'cc_fund',
-            customer: cust
-            account_identifier: acct
-            amount: amt
-            client_ip: ip
-            cc_token: cc
-            security_code: auth
-        , callback
-
-    orderAmazonDotComCard: (cust, acct, campaign, amt, from, subject, to, email, message, callback) ->
-        data =
-            customer: cust
-            account_identifier: acct
-            campaign: campaign
-            recipient:
-                name: to
-                email: email
-            sku: "AMZN-E-V-STD"
-            amount: amt
-            reward_from: from
-            reward_subject: subject
-            reward_message: message
-            send_reward: true
-        @post 'orders', data, callback
 
 
 # GIFs for celebration
