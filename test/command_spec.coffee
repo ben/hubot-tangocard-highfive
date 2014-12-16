@@ -6,6 +6,7 @@ path = require 'path'
 # Load assertion methods to this scope
 { expect } = require 'chai'
 nock = require 'nock'
+nock.disableNetConnect()
 
 # Globals
 robot = user = {}
@@ -62,9 +63,38 @@ describe 'help', ->
         expect(expected).to.contain(x) for x in help
         do done
 
+# Mock out the tangocard API
+process.env.HUBOT_TANGOCARD_ROOTURL = 'http://tango.example.com/'
+process.env.HUBOT_TANGOCARD_CUSTOMER = 'Foo'
+process.env.HUBOT_TANGOCARD_ACCOUNT = 'Bar'
+
 # Test the Tango Card API implementation
-describe 'tangocard api', ->
-    # TODO
+describe 'Tango Card', ->
+    beforeEach (done) ->
+        nock('http://tango.example.com')
+            .filteringPath /Authorization=[^&]*/g, 'Authorization=FOOBAR'
+            .get('/accounts/Foo/Bar?Authorization=FOOBAR')
+            .reply 200,
+                success: true
+                account:
+                    available_balance: 100
+            .post('/cc_fund?Authorization=FOOBAR')
+            .reply 200,
+                success: true
+            .post('/orders?Authorization=FOOBAR')
+            .reply 200,
+                success: true
+        nock('http://jsonip.com')
+            .get('/')
+            .reply 200, ip: '0.0.0.0'
+        prep done
+    afterEach cleanup
+
+    it 'should announce the gift card', (done) ->
+        message_response 'highfive @foo $25 for something', 'send', (e,strs) ->
+            unless strs.match /woo/i
+                expect(strs).to.match /.*\$25.*card.*/i
+                do done
 
 # Test the command itself
 describe 'highfive', ->
@@ -83,19 +113,14 @@ describe 'highfive', ->
 
     it 'should make some noise', (done) ->
         message_response 'highfive @foo for something', 'send', (e,strs) ->
-            expect(strs).to.match /.*woo[\s\S]*\.gif/i
+            expect(strs).to.match /.*woo.*/i
+            expect(strs).to.match /\.gif/i
             do done
 
     it "should complain if it can't find a user", (done) ->
         message_response 'highfive @bar for nothing', 'reply', (e,strs) ->
             expect(strs).to.equal "Who's @bar?"
             do done
-
-    it 'should announce the gift card', (done) ->
-        message_response 'highfive @foo $25 for something', 'send', (e,strs) ->
-            unless strs.match /woo/i
-                expect(strs).to.match /.*\$25.*card.*/i
-                do done
 
 describe 'config', ->
     beforeEach prep
