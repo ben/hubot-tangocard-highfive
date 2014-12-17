@@ -5,12 +5,6 @@
 #   hubot highfive @<user> for <awesome thing> - makes a loud announcement in a public chatroom
 #   hubot highfive @<user> $<amount> for <awesome thing> - makes a loud announcement and sends the user an Amazon.com giftcard
 #   hubot highfive config - show URL for configuration UI
-#
-# Configuration:
-#   HUBOT_HIGHFIVE_EMAIL_SERVICE - Service for looking up email addresses by user names (defaults to 'slack')
-#   HUBOT_SLACK_API_TOKEN - If using the 'slack' email service, this is your API token. Get one from https://api.slack.com/tokens
-#   HUBOT_HIGHFIVE_ROOM - Room for making noise when someone is high-fived. Defaults to the room the request was made in
-#   HUBOT_HIGHFIVE_AWARD_LIMIT - upper limit for giftcard awards. Set to 0 to disable giftcards. Default is 150.
 
 Path = require 'path'
 fs = require 'fs'
@@ -20,28 +14,25 @@ TangoApp = require './lib/api/tangocard'
 SlackApp = require './lib/api/slack'
 logToSheet = require './lib/sheet'
 
+try
+    # console.log "HIGHFIVE Loading #{process.env.HUBOT_HIGHFIVE_CHAT_SERVICE}_chat_service…"
+    ChatService = require "./lib/#{process.env.HUBOT_HIGHFIVE_CHAT_SERVICE}_chat_service"
+catch
+    console.log "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
+    ChatService = require './lib/dummy_chat_service'
+
 debug = ->
 if process.env.HUBOT_HIGHFIVE_DEBUG?
     debug = (msg, txt) -> msg.send "DEBUG " + txt
 
 module.exports = (robot) ->
-    # Services for getting emails from users
-    email_fetchers =
-        slack: (username1, username2, callback) ->
-            # Slack decorates some usernames
-            [username1,username2] = (u.replace(/^[<@]*|[>]$/gm, '') for u in [username1, username2])
-            new SlackApp(robot).listUsers (resp) ->
-                grabber = (name) ->
-                    (x for x in resp.members when name in [x.name, x.id])[0]?.profile.email
-                return callback(null, null) unless resp.members?
-                [e1, e2] = (grabber(u) for u in [username1, username2])
-                callback e1, e2
-        dummy: (username1, username2, callback) ->
-            # This is for testing.
-            [e1, e2] = (robot.brain.userForName(u)?.email for u in [username1, username2])
-            callback e1, e2
 
-    email_fetcher = email_fetchers[process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE || 'slack']
+    # Utility for getting two users at once
+    chatService = ChatService(robot)
+    userFetcher = (uid1, uid2, callback) ->
+        chatService.user uid1, (uobj1) ->
+            chatService.user uid2, (uobj2) ->
+                callback uobj1, uobj2
 
     # Config UI serving
     configpath = Path.join __dirname, '..', 'config'
@@ -63,7 +54,7 @@ module.exports = (robot) ->
         res.set 'Content-Type', 'application/x-javascript'
         data = {}
         envvars = [
-            'HUBOT_HIGHFIVE_EMAIL_SERVICE',
+            'HUBOT_HIGHFIVE_CHAT_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
             'HUBOT_TANGOCARD_ROOTURL'
@@ -104,17 +95,16 @@ module.exports = (robot) ->
         amt = parseInt(msg.match[3] or 0)
         reason = msg.match[4]
         debug msg, "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
-
-        email_fetcher from_user, to_user, (from_email, to_email) ->
-            debug msg, "from #{from_email} to #{to_email}"
+        userFetcher from_user, to_user, (from_obj, to_obj) ->
+            debug msg, "from #{from_obj?.email} to #{to_obj?.email}"
             # Safety checks:
             # - Don't target a nonexistent user
             # - Don't target yourself
             # - $150 or less
             # - Any others?
-            unless to_email
+            unless to_obj?.email
                 return msg.reply "Who's #{msg.match[1]}?"
-            if to_email == from_email
+            if to_obj?.email == from_obj?.email
                 return msg.reply "High-fiving yourself is just clapping."
             if amt > (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
                 return msg.reply "$#{amt} is more like a high-500. Think smaller."
@@ -155,7 +145,7 @@ module.exports = (robot) ->
 
                 sendCard = ->
                     message = "High five for #{reason}!"
-                    tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_email, message, (resp) ->
+                    tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_obj.email, message, (resp) ->
                         debug msg, "order response `#{JSON.stringify resp}`"
                         unless resp.success
                             errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
@@ -163,8 +153,8 @@ module.exports = (robot) ->
                         msg.send "A $#{amt} gift card is on its way!"
                         logToSheet [
                             resp.order.delivered_at,    # date
-                            from_email,                 # from
-                            to_email,                   # to
+                            from_obj.email,                 # from
+                            to_obj.email,                   # to
                             amt,                        # amount
                             reason,                     # why
                             resp.order.reward.number,   # gift card code

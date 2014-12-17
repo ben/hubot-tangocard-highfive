@@ -12,7 +12,7 @@ nock.disableNetConnect()
 robot = user = {}
 
 # Test environment variables
-process.env.HUBOT_HIGHFIVE_EMAIL_SERVICE = 'dummy'
+process.env.HUBOT_HIGHFIVE_CHAT_SERVICE = 'dummy'
 process.env.PORT = 8088
 process.env.HUBOT_HOSTNAME = 'http://localhost:8088'
 
