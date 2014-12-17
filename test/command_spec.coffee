@@ -84,6 +84,10 @@ describe 'Tango Card', ->
             .post('/orders?Authorization=FOOBAR')
             .reply 200,
                 success: true
+                order:
+                    delivered_at: 'now'
+                    reward:
+                        number: '123'
         nock('http://jsonip.com')
             .get('/')
             .reply 200, ip: '0.0.0.0'
