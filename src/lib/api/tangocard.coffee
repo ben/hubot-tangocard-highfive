@@ -1,4 +1,4 @@
-BaseApiApp = require './base_api_app'
+BaseApiApp = require './base'
 
 # Tango Card API helper class
 class TangoApp extends BaseApiApp

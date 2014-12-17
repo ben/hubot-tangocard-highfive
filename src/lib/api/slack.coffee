@@ -1,4 +1,4 @@
-BaseApiApp = require './base_api_app'
+BaseApiApp = require './base'
 
 # Slack API helper class
 class SlackApp extends BaseApiApp

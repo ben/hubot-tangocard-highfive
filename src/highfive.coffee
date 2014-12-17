@@ -16,8 +16,8 @@ Path = require 'path'
 fs = require 'fs'
 coffee = require 'coffee-script'
 
-TangoApp = require './lib/tangocard'
-SlackApp = require './lib/slack'
+TangoApp = require './lib/api/tangocard'
+SlackApp = require './lib/api/slack'
 logToSheet = require './lib/sheet'
 
 debug = ->
