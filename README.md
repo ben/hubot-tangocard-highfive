@@ -51,7 +51,7 @@ When you're done filling out the form (and optionally submitting the credit-card
 
 The basic high-five configuration consists of just two options:
 
-- The chat service (`HUBOT_HIGHFIVE_EMAIL_SERVICE`) helps the plugin figure out how to find the right room to send messages to, and how to format messages properly.
+- The chat service (`HUBOT_HIGHFIVE_EMAIL_SERVICE`) helps the plugin figure out how to find the right room to send messages to, and how to format messages properly. If this is set to `slack`, you'll also need to configure `HUBOT_SLACK_API_TOKEN`.
 - The announcement room (`HUBOT_HIGHFIVE_ROOM`)  sets the room in which high-fives are announced. If it's empty, the plugin will just spit messages out to the room it's triggered in.
 
 ## Tango Card Configuration
