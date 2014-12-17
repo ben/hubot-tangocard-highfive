@@ -74,6 +74,10 @@ module.exports = (robot) ->
             'HUBOT_TANGOCARD_CUSTOMER',
             'HUBOT_TANGOCARD_ACCOUNT',
             'HUBOT_TANGOCARD_EMAIL',
+            'HUBOT_HIGHFIVE_SHEET_EMAIL',
+            'HUBOT_HIGHFIVE_SHEET_KEY',
+            'HUBOT_HIGHFIVE_SHEET_DOCID',
+            'HUBOT_HIGHFIVE_SHEET_SHEETNAME',
         ]
         for v in envvars
             data[v] = process.env[v] || ''

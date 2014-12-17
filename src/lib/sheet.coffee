@@ -2,9 +2,9 @@ Spreadsheet = require 'edit-google-spreadsheet'
 
 # Environment configuration
 EMAIL = process.env.HUBOT_HIGHFIVE_SHEET_EMAIL
-KEY = process.env.HUBOT_HIGHFIVE_SHEET_KEY # the contents of a .pem file
-DOCID = process.env.HUBOT_HIGHFIVE_SHEETID
-SHEETNAME = process.env.HUBOT_HIGHFIVE_SHEETNAME
+KEY = process.env.HUBOT_HIGHFIVE_SHEET_KEY
+DOCID = process.env.HUBOT_HIGHFIVE_SHEET_DOCID
+SHEETNAME = process.env.HUBOT_HIGHFIVE_SHEET_SHEETNAME
 
 logToSheet = (data) ->
     unless EMAIL and KEY and DOCID and SHEETNAME
