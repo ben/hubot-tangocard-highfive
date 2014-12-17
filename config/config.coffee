@@ -5,7 +5,7 @@ class MainViewModel
         ]
 
         @fieldnames = [
-            'HUBOT_HIGHFIVE_EMAIL_SERVICE',
+            'HUBOT_HIGHFIVE_CHAT_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
             'HUBOT_TANGOCARD_ROOTURL'
@@ -170,5 +170,5 @@ $ ->
 
     ko.applyBindings vm
 
-    $('#configoutput').click ->
+    $('.config-text-area').click ->
         @select()
