@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "coffee-script": "^1.8.0",
-    "edit-google-spreadsheet": "^0.2.13",
-    "slack-client": "^1.2.2"
+    "edit-google-spreadsheet": "^0.2.13"
   }
 }

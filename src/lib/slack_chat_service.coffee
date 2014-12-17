@@ -4,15 +4,13 @@
 # - `message` takes a room name/id, a "from" user, and a "to" user, and a high-five reason, and it pumps out an appropriately noisy message into the room.
 
 SlackApp = require './api/slack'
-SlackClient = require 'slack-client'
+
 
 users_cache = []
 channel_cache = []
 
 module.exports = (robot, gifGenerator) ->
     slack = new SlackApp(robot)
-    client = new SlackClient process.env.HUBOT_SLACK_API_TOKEN
-    client.login()
 
     user: (uid, callback) ->
         # If the user is mentioned, uid looks like `<@U123456>`
@@ -32,10 +30,6 @@ module.exports = (robot, gifGenerator) ->
             callback theUser()
 
     message: (roomid, from_user, to_user, reason) ->
-        channel = client.getChannelGroupOrDMByName(roomid)
-        unless channel?
-            return robot.logger.info "HIGHFIVE: Can't find room called #{roomid}"
-
         message = """
         #{gifGenerator()}
         <!channel> WOOOOOOOOO! <@#{from_user.name}> is high-fiving <@#{to_user.name}> for #{reason}!
