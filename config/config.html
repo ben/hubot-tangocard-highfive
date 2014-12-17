@@ -22,7 +22,7 @@
             <legend>Plugin Settings</legend>
             <div data-row-span="3">
                 <div data-field-span="1">
-                    <label>Email Address Service</label>
+                    <label>Chat Service</label>
                     <select data-bind="options: services, value: HUBOT_HIGHFIVE_EMAIL_SERVICE">
                     </select>
                 </div>
@@ -143,17 +143,48 @@
             </div>
 
         </fieldset>
-
         <button data-bind="click: tangocard_setup">Process</button>
         &nbsp;
         <p data-bind="text: tangocard_status,
                       css: tangocard_class"></p>
+        <br>
+        <fieldset>
+            <legend>Google Spreadsheet Settings</legend>
+            <div data-row-span="5">
+                <div data-field-span="2">
+                    <label>Spreadsheet Document ID</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_SHEET_DOCID,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>Worksheet Name</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_SHEET_SHEETNAME,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="2">
+                    <label>App Email Address</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_SHEET_EMAIL,
+                                                  valueUpdate: 'input'">
+                </div>
+            </div>
+            <div data-row-span="1">
+                <div data-field-span="1">
+                    <label>Spreadsheet Document ID</label>
+                    <textarea class="config-text-area"
+                              data-bind="value: HUBOT_HIGHFIVE_SHEET_KEY,
+                                         valueUpdate: 'input'">
+                    </textarea>
+                </div>
+            </div>
+        </fieldset>
+
+
 
         <br><br>
         <fieldset>
             <legend>Output</legend>
             <p>Copy and paste this to someone who can change Hubot's configuration:</p>
-            <textarea id="configoutput" data-bind="text: configoutput"></textarea>
+            <textarea class="config-text-area" data-bind="text: configoutput"></textarea>
 
         </fieldset>
     </div>

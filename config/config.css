@@ -10,10 +10,10 @@ body {
     color: #222;
 }
 
-#configoutput {
+.config-text-area {
     height: 10em;
     font-family: monospace;
-    border: 1px solid #bbb;
+    border: 1px solid #bbb !important;
 }
 
 .fail {
