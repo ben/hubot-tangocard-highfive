@@ -36,10 +36,8 @@ module.exports = (robot, gifGenerator) ->
         unless channel?
             return robot.logger.info "HIGHFIVE: Can't find room called #{roomid}"
 
-        # TODO: linkify user and channel mentions
         message = """
         #{gifGenerator()}
         <!channel> WOOOOOOOOO! <@#{from_user.name}> is high-fiving <@#{to_user.name}> for #{reason}!
         """
         robot.adapter.send {room: roomid}, message
-        # channel.send message

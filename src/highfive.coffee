@@ -110,8 +110,6 @@ module.exports = (robot) ->
                 return msg.reply "$#{amt} is more like a high-500. Think smaller."
 
             # TODO: send to a configurable channel
-            # TODO: fix channel mention (fetch ID on startup? service?)
-            # TODO: fix user mentions
             chatService.message msg.envelope.room, from_obj, to_obj, reason
 
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
