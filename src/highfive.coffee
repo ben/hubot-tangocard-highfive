@@ -18,6 +18,7 @@ coffee = require 'coffee-script'
 
 TangoApp = require './lib/tangocard'
 SlackApp = require './lib/slack'
+logToSheet = require './lib/sheet'
 
 debug = ->
 if process.env.HUBOT_HIGHFIVE_DEBUG?
@@ -156,7 +157,14 @@ module.exports = (robot) ->
                             errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
                             return msg.send "(Problem ordering gift card: '#{errmsg}'. You might want 'highfive config'.)"
                         msg.send "A $#{amt} gift card is on its way!"
-                        # TODO: log to spreadsheet
+                        logToSheet [
+                            resp.order.delivered_at,    # date
+                            from_email,                 # from
+                            to_email,                   # to
+                            amt,                        # amount
+                            reason,                     # why
+                            resp.order.reward.number,   # gift card code
+                        ]
 
         , (e1, e2) -> # error callback from email_fetcher
             console.log "ERROR '#{e1}' '#{e2}'"
