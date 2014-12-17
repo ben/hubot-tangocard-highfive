@@ -117,7 +117,9 @@ describe 'highfive', ->
 
     it 'should make some noise', (done) ->
         message_response 'highfive @foo for something', 'send', (e,strs) ->
-            expect(strs).to.match /.*woo.*/i
+            expect(strs).to.match /woo/i
+            expect(strs).to.contain 'foo'
+            expect(strs).to.contain 'mocha'
             expect(strs).to.match /\.gif/i
             do done
 

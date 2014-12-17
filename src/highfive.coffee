@@ -28,7 +28,7 @@ if process.env.HUBOT_HIGHFIVE_DEBUG?
 module.exports = (robot) ->
 
     # Utility for getting two users at once
-    chatService = ChatService(robot)
+    chatService = ChatService(robot, -> GIFs[ Math.floor(Math.random() * GIFs.length) ])
     userFetcher = (uid1, uid2, callback) ->
         chatService.user uid1, (uobj1) ->
             chatService.user uid2, (uobj2) ->
@@ -112,11 +112,7 @@ module.exports = (robot) ->
             # TODO: send to a configurable channel
             # TODO: fix channel mention (fetch ID on startup? service?)
             # TODO: fix user mentions
-            msg.send """
-            #{msg.random GIFs}
-            @channel WOOOOOO! #{from_user} is high-fiving #{to_user} for #{reason}!
-            """
-
+            chatService.message msg.envelope.room, from_obj, to_obj, reason
 
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
                 tango = new TangoApp(robot)
