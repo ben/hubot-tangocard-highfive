@@ -11,6 +11,7 @@ logToSheet = (robot, data) ->
         return robot.logger.info "Set up HUBOT_HIGHFIVE_SHEET_* environment variables to log gift cards to a Google spreadsheet. Check the hubot-tangocard-highfive readme."
 
     Spreadsheet.load
+        # debug: true
         spreadsheetId: DOCID
         worksheetName: SHEETNAME
         oauth:

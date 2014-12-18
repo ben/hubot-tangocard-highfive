@@ -9,6 +9,7 @@
 Path = require 'path'
 fs = require 'fs'
 coffee = require 'coffee-script'
+moment = require 'moment'
 
 TangoApp = require './lib/api/tangocard'
 logToSheet = require './lib/sheet'
@@ -105,13 +106,15 @@ module.exports = (robot) ->
                 return tango(robot).order msg, from_obj, to_obj, amt, reason
                 , (order) ->
                     msg.send "A $#{amt} gift card is on its way!"
+                    m = moment(order.delivered_at).format 'YYYY/MM/DD HH:mm:ss'
                     logToSheet robot, [
-                        order.delivered_at,   # date
+                        m,                    # date
                         from_obj.email,       # from
                         to_obj.email,         # to
                         amt,                  # amount
                         reason,               # why
                         order.reward.number,  # gift card code
+                        # TODO: link to transcript?
                     ]
 
 

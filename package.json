@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "coffee-script": "^1.8.0",
-    "edit-google-spreadsheet": "^0.2.13"
+    "edit-google-spreadsheet": "^0.2.13",
+    "moment": "^2.8.4"
   }
 }
