@@ -112,7 +112,21 @@ describe 'highfive', ->
 
     it "shouldn't let you send huge gifts", (done) ->
         message_response 'highfive @foo $5000 for nothing', 'reply', (e,strs) ->
-            expect(strs).to.match /\$5000.*smaller/i
+            expect(strs).to.match /\$5000.*smaller.*150/i
+            do done
+
+    it 'should mention the right limit when refusing to order a card', (done) ->
+        process.env.HUBOT_HIGHFIVE_AWARD_LIMIT = 20
+        message_response 'highfive @foo $30 for nothing', 'reply', (e, strs) ->
+            delete process.env.HUBOT_HIGHFIVE_AWARD_LIMIT
+            expect(strs).to.contain '$30'
+            do done
+
+    it 'should refuse to send a card if awards are disabled', (done) ->
+        process.env.HUBOT_HIGHFIVE_AWARD_LIMIT = 0
+        message_response 'highfive @foo $10 for nothing', 'reply', (e,strs) ->
+            delete process.env.HUBOT_HIGHFIVE_AWARD_LIMIT
+            expect(strs).to.contain 'disabled'
             do done
 
     it 'should make some noise', (done) ->

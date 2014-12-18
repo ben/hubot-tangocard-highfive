@@ -79,6 +79,7 @@ module.exports = (robot) ->
         from_user = msg.message.user.name
         to_user = msg.match[1][1..]
         amt = parseInt(msg.match[3] or 0)
+        awardLimit = parseInt(process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
         reason = msg.match[4]
         robot.logger.debug "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
         userFetcher from_user, to_user, (from_obj, to_obj) ->
@@ -92,14 +93,15 @@ module.exports = (robot) ->
                 return msg.reply "Who's #{msg.match[1]}?"
             if to_obj?.email == from_obj?.email
                 return msg.reply "High-fiving yourself is just clapping."
-            if amt > (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
-                return msg.reply "$#{amt} is more like a high-500. Think smaller."
+            if amt > 0 and awardLimit == 0
+                return msg.reply "Gift cards are disabled."
+            if amt > awardLimit
+                return msg.reply "$#{amt} is more like a high-500. Think smaller, like maybe $#{awardLimit || 150} or less."
 
             roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
             chatService.message roomid, from_obj, to_obj, reason
 
-            if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
-
+            if awardLimit != 0 and amt > 0
                 return tango(robot).order msg, from_obj, to_obj, amt, reason
                 , (order) ->
                     msg.send "A $#{amt} gift card is on its way!"
