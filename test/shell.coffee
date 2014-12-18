@@ -4,9 +4,7 @@ Adapter = require 'hubot/src/adapter'
 
 class MockAdapter extends Adapter
     genericEmit = (evt) ->
-        # console.log "wrapping #{evt}"
         return (envelope, strings...) ->
-            # console.log "-- Emitting #{evt} with '#{strings}'"
             @emit evt, envelope, strings...
 
     constructor: (robot) ->

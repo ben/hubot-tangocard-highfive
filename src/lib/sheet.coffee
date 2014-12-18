@@ -8,7 +8,7 @@ SHEETNAME = process.env.HUBOT_HIGHFIVE_SHEET_SHEETNAME
 
 logToSheet = (data) ->
     unless EMAIL and KEY and DOCID and SHEETNAME
-        return console.log "Set up HUBOT_HIGHFIVE_SHEET_* environment variables to log gift cards to a Google spreadsheet. Check the hubot-tangocard-highfive readme."
+        return robot.logger.info "Set up HUBOT_HIGHFIVE_SHEET_* environment variables to log gift cards to a Google spreadsheet. Check the hubot-tangocard-highfive readme."
 
     Spreadsheet.load
         spreadsheetId: DOCID
@@ -17,9 +17,9 @@ logToSheet = (data) ->
             email: EMAIL
             key: KEY
     , (err, spreadsheet) ->
-        return console.log "Error opening spreadsheet: #{err}" if err
+        return robot.logger.info "Error opening spreadsheet: #{err}" if err
         spreadsheet.receive (err, rows, info) ->
-            return console.log "Error reading spreadsheet: #{err}" if err
+            return robot.logger.info "Error reading spreadsheet: #{err}" if err
             args = {}
             args[info.nextRow] = {}
             i = 1
@@ -27,6 +27,6 @@ logToSheet = (data) ->
                 args[info.nextRow][i++] = item
             spreadsheet.add args
             spreadsheet.send (err) ->
-                console.log "Error updating spreadsheet: #{err}" if err
+                robot.logger.info "Error updating spreadsheet: #{err}" if err
 
 module.exports = logToSheet

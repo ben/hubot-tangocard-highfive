@@ -9,7 +9,7 @@ class BaseApiApp
             try
                 json = JSON.parse body
             catch error
-                console.log "API error: #{err}"
+                @robot.logger.info "API error: #{err}"
             callback json
 
     post: (endpoint, data, callback) ->
@@ -18,7 +18,7 @@ class BaseApiApp
             try
                 json = JSON.parse body
             catch error
-                console.log "API error: #{err}"
+                @robot.logger.info "API error: #{err}"
             callback json
 
 module.exports = BaseApiApp

@@ -15,15 +15,10 @@ SlackApp = require './lib/api/slack'
 logToSheet = require './lib/sheet'
 
 try
-    # console.log "HIGHFIVE Loading #{process.env.HUBOT_HIGHFIVE_CHAT_SERVICE}_chat_service…"
     ChatService = require "./lib/#{process.env.HUBOT_HIGHFIVE_CHAT_SERVICE}_chat_service"
 catch
-    console.log "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
+    robot.logger.info "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
     ChatService = require './lib/dummy_chat_service'
-
-debug = ->
-if process.env.HUBOT_HIGHFIVE_DEBUG?
-    debug = (msg, txt) -> msg.send "DEBUG " + txt
 
 module.exports = (robot) ->
 
@@ -79,24 +74,15 @@ module.exports = (robot) ->
         hostname = process.env.HUBOT_HOSTNAME || 'http://localhost:8080'
         msg.reply "#{hostname}/highfive/"
 
-    # Debug echo helper
-    if process.env.HUBOT_HIGHFIVE_DEBUG?
-        robot.hear /.*/, (msg) ->
-            msg.send """
-            ```
-            #{JSON.stringify msg, null, 2}
-            ```
-            """
-
     # The main responder
     robot.respond /highfive (.+?)( \$(\d+))? for (.*)/, (msg) ->
         from_user = msg.message.user.name
         to_user = msg.match[1][1..]
         amt = parseInt(msg.match[3] or 0)
         reason = msg.match[4]
-        debug msg, "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
+        robot.logger.debug "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
         userFetcher from_user, to_user, (from_obj, to_obj) ->
-            debug msg, "from #{from_obj?.email} to #{to_obj?.email}"
+            robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"
             # Safety checks:
             # - Don't target a nonexistent user
             # - Don't target yourself
@@ -118,7 +104,7 @@ module.exports = (robot) ->
                 acct = process.env.HUBOT_TANGOCARD_ACCOUNT
 
                 tango.getAccountStatus cust, acct, (resp) ->
-                    debug msg, "account status `#{JSON.stringify resp}`"
+                    robot.logger.debug "account status `#{JSON.stringify resp}`"
 
                     unless resp.success
                         return msg.send "(Problem getting Tango Card status: '#{resp.error_message}'. You might want 'highfive config'.)"
@@ -132,7 +118,7 @@ module.exports = (robot) ->
                         jsonip = JSON.parse body
 
                         tango.fundAccount cust, acct, amtToFund, jsonip.ip, cc, auth, (resp) ->
-                            debug msg, "funding response `#{JSON.stringify resp}`"
+                            robot.logger.debug "funding response `#{JSON.stringify resp}`"
                             unless resp.success
                                 return msg.send "(Problem funding Tango Card account: '#{resp.denial_message}'. You might want 'highfive config'.)"
                             return sendCard() if resp.success
@@ -140,7 +126,7 @@ module.exports = (robot) ->
                 sendCard = ->
                     message = "High five for #{reason}!"
                     tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_obj.email, message, (resp) ->
-                        debug msg, "order response `#{JSON.stringify resp}`"
+                        robot.logger.debug "order response `#{JSON.stringify resp}`"
                         unless resp.success
                             errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
                             return msg.send "(Problem ordering gift card: '#{errmsg}'. You might want 'highfive config'.)"
@@ -153,10 +139,6 @@ module.exports = (robot) ->
                             reason,                     # why
                             resp.order.reward.number,   # gift card code
                         ]
-
-        , (e1, e2) -> # error callback from email_fetcher
-            console.log "ERROR '#{e1}' '#{e2}'"
-            msg.reply "Who's #{msg.match[1]}?" unless e1
 
 
 # GIFs for celebration
