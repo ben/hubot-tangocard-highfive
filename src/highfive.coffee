@@ -109,8 +109,8 @@ module.exports = (robot) ->
             if amt > (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
                 return msg.reply "$#{amt} is more like a high-500. Think smaller."
 
-            # TODO: send to a configurable channel
-            chatService.message msg.envelope.room, from_obj, to_obj, reason
+            roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
+            chatService.message roomid, from_obj, to_obj, reason
 
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
                 tango = new TangoApp(robot)
