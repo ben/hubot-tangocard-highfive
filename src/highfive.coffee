@@ -11,8 +11,8 @@ fs = require 'fs'
 coffee = require 'coffee-script'
 
 TangoApp = require './lib/api/tangocard'
-SlackApp = require './lib/api/slack'
 logToSheet = require './lib/sheet'
+tango = require './lib/tango'
 
 try
     ChatService = require "./lib/#{process.env.HUBOT_HIGHFIVE_CHAT_SERVICE}_chat_service"
@@ -99,46 +99,18 @@ module.exports = (robot) ->
             chatService.message roomid, from_obj, to_obj, reason
 
             if amt > 0 and process.env.HUBOT_HIGHFIVE_AWARD_LIMIT != 0
-                tango = new TangoApp(robot)
-                cust = process.env.HUBOT_TANGOCARD_CUSTOMER
-                acct = process.env.HUBOT_TANGOCARD_ACCOUNT
 
-                tango.getAccountStatus cust, acct, (resp) ->
-                    robot.logger.debug "account status `#{JSON.stringify resp}`"
-
-                    unless resp.success
-                        return msg.send "(Problem getting Tango Card status: '#{resp.error_message}'. You might want 'highfive config'.)"
-                    return sendCard() if resp.account.available_balance/100 >= amt
-
-                    # Insufficient balance, attempt to fund the account
-                    amtToFund = (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150) * 2 * 100 # in cents
-                    cc = process.env.HUBOT_TANGOCARD_CC
-                    auth = process.env.HUBOT_TANGOCARD_AUTH
-                    robot.http('http://jsonip.com').get() (err, res, body) ->
-                        jsonip = JSON.parse body
-
-                        tango.fundAccount cust, acct, amtToFund, jsonip.ip, cc, auth, (resp) ->
-                            robot.logger.debug "funding response `#{JSON.stringify resp}`"
-                            unless resp.success
-                                return msg.send "(Problem funding Tango Card account: '#{resp.denial_message}'. You might want 'highfive config'.)"
-                            return sendCard() if resp.success
-
-                sendCard = ->
-                    message = "High five for #{reason}!"
-                    tango.orderAmazonDotComCard cust, acct, 'High-five', amt*100, from_user, 'High Five!', to_user, to_obj.email, message, (resp) ->
-                        robot.logger.debug "order response `#{JSON.stringify resp}`"
-                        unless resp.success
-                            errmsg = resp.invalid_inputs_message || resp.error_message || resp.denial_message
-                            return msg.send "(Problem ordering gift card: '#{errmsg}'. You might want 'highfive config'.)"
-                        msg.send "A $#{amt} gift card is on its way!"
-                        logToSheet [
-                            resp.order.delivered_at,    # date
-                            from_obj.email,                 # from
-                            to_obj.email,                   # to
-                            amt,                        # amount
-                            reason,                     # why
-                            resp.order.reward.number,   # gift card code
-                        ]
+                return tango(robot).order msg, from_obj, to_obj, amt, reason
+                , (order) ->
+                    msg.send "A $#{amt} gift card is on its way!"
+                    logToSheet [
+                        order.delivered_at,   # date
+                        from_obj.email,       # from
+                        to_obj.email,         # to
+                        amt,                  # amount
+                        reason,               # why
+                        order.reward.number,  # gift card code
+                    ]
 
 
 # GIFs for celebration
