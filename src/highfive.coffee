@@ -86,6 +86,8 @@ module.exports = (robot) ->
             # - Don't target yourself
             # - $150 or less
             # - Any others?
+            if to_obj?.is_bot
+                return msg.reply "Robots don't _do_ high fives."
             unless to_obj?.email
                 return msg.reply "Who's #{msg.match[1]}?"
             if to_obj?.email == from_obj?.email
