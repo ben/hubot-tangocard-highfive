@@ -61,6 +61,7 @@ The plugin also has the ability to automatically order gift cards from Tango Car
 Once you've done that, you'll need to tell the plugin some values:
 
 - The award limit (`HUBOT_HIGHFIVE_AWARD_LIMIT`) sets an upper bound on the size of gift card that can be sent. The default is $150.
+- The daily limit (`HUBOT_HIGHFIVE_DAILY_LIMIT`) sets a limit on how much any single user can give out in a day. The default is $500.
 - Overriding the Tango Card root URL (`HUBOT_TANGOCARD_ROOTURL`) lets you use the sandbox API for testing (it's at https://sandbox.tangocard.com/raas/v1/). The default is the production endpoint.
 - When you sign up for the Tango Card API, they'll provide you with a username (`HUBOT_TANGOCARD_USER`) and a secret key (`HUBOT_TANGOCARD_KEY`).
 - The customer and account fields (`HUBOT_TANGOCARD_CUSTOMER` and `HUBOT_TANGOCARD_ACCOUNT`) are fairly arbitrary, and only really exist so you can track expenses through Tango Card. This plugin will use the same values for every card it orders.

@@ -8,6 +8,7 @@ class MainViewModel
             'HUBOT_HIGHFIVE_CHAT_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
+            'HUBOT_HIGHFIVE_DAILY_LIMIT',
             'HUBOT_TANGOCARD_ROOTURL'
             'HUBOT_TANGOCARD_USER',
             'HUBOT_TANGOCARD_KEY',
