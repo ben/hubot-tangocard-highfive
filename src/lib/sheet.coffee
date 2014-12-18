@@ -6,7 +6,7 @@ KEY = process.env.HUBOT_HIGHFIVE_SHEET_KEY
 DOCID = process.env.HUBOT_HIGHFIVE_SHEET_DOCID
 SHEETNAME = process.env.HUBOT_HIGHFIVE_SHEET_SHEETNAME
 
-logToSheet = (data) ->
+logToSheet = (robot, data) ->
     unless EMAIL and KEY and DOCID and SHEETNAME
         return robot.logger.info "Set up HUBOT_HIGHFIVE_SHEET_* environment variables to log gift cards to a Google spreadsheet. Check the hubot-tangocard-highfive readme."
 

@@ -103,7 +103,7 @@ module.exports = (robot) ->
                 return tango(robot).order msg, from_obj, to_obj, amt, reason
                 , (order) ->
                     msg.send "A $#{amt} gift card is on its way!"
-                    logToSheet [
+                    logToSheet robot, [
                         order.delivered_at,   # date
                         from_obj.email,       # from
                         to_obj.email,         # to
