@@ -32,20 +32,16 @@ module.exports = (robot) ->
 
     # Config UI serving
     configpath = Path.join __dirname, '..', 'config'
-    robot.router.get '/highfive/', (req, res) ->
-        res.set 'Content-Type', 'text/html'
-        res.sendfile Path.join configpath, 'config.html'
-    robot.router.get '/highfive/config.css', (req, res) ->
-        res.set 'Content-Type', 'text/css'
-        res.sendfile Path.join configpath, 'config.css'
-    robot.router.get '/highfive/gridforms.js', (req, res) ->
-        res.set 'Content-Type', 'application/x-javascript'
-        res.sendfile Path.join configpath, 'gridforms.js'
+    route_to_file = (route, file) ->
+        robot.router.get "/highfive/#{route}", (req, res) ->
+            res.sendfile Path.join configpath, file
+    route_to_file '', 'config.html'
+    route_to_file 'config.css', 'config.css'
+    route_to_file 'gridforms.js', 'gridforms.js'
     robot.router.get '/highfive/config.js', (req, res) ->
-        res.set 'Content-Type', 'application/x-javascript'
+        res.set 'Content-Type', 'application/javascript'
         cs = fs.readFileSync Path.join(configpath, 'config.coffee'), 'utf-8'
-        js = coffee.compile cs
-        res.send js
+        res.send coffee.compile cs
     robot.router.get '/highfive/values.json', (req, res) ->
         res.set 'Content-Type', 'application/x-javascript'
         data = {}
