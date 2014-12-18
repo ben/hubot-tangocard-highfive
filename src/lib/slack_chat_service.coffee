@@ -25,8 +25,10 @@ module.exports = (robot, gifGenerator) ->
         return callback(user) if user
 
         # Not found; refresh the cache
+        robot.logger.debug "HIGHFIVE refreshing Slack user cache"
         slack.listUsers (resp) ->
-            users_cache = resp.members
+            robot.logger.info "Slack error:", resp.error unless resp.ok
+            users_cache = resp.members || []
             callback theUser()
 
     message: (roomid, from_user, to_user, reason) ->

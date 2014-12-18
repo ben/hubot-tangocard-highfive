@@ -4,7 +4,7 @@ BaseApiApp = require './base'
 class SlackApp extends BaseApiApp
     constructor: (robot) ->
         super robot, 'https://slack.com/api/',
-            token: process.env.HUBOT_SLACK_API_TOKEN
+            token: process.env.HUBOT_SLACK_TOKEN
 
     listUsers: (callback) ->
         @get 'users.list', callback
