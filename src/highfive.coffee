@@ -30,6 +30,30 @@ module.exports = (robot) ->
             chatService.user uid2, (uobj2) ->
                 callback uobj1, uobj2
 
+    # Helper for recording daily limits. Returns two values:
+    # - Whether or not the user can spend `amount`
+    # - The new daily total. This includes `amount` if it fits within the limit.
+    record_daily_total = (username, amount) ->
+        yesterday = moment().subtract 1, 'day'
+        limit = parseInt(process.env.HUBOT_HIGHFIVE_DAILY_LIMIT || 500)
+        # Fetch from brain
+        current_totals = robot.brain.get('highfive_daily_totals') or {}
+        # Calculate the running total in the last 24 hours
+        users_totals = (current_totals[username] or [])
+        users_totals = users_totals.filter((x) -> x.date >= yesterday)
+        total = users_totals.reduce ((acc,x) -> acc + x.amt), 0
+        unless total + amount <= limit
+            # Too much
+            return [false, total]
+        # Permission granted. Record the gift.
+        users_totals.push
+            date: moment()
+            amt: amount
+        current_totals[username] = users_totals
+        robot.brain.set 'highfive_daily_totals', current_totals
+        robot.logger.debug "HIGHFIVE daily totals #{JSON.stringify robot.brain.get 'highfive_daily_totals'}"
+        [true, total + amount]
+
     # Config UI serving
     configpath = Path.join __dirname, '..', 'config'
     route_to_file = (route, file) ->
@@ -49,6 +73,7 @@ module.exports = (robot) ->
             'HUBOT_HIGHFIVE_CHAT_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
+            'HUBOT_HIGHFIVE_DAILY_LIMIT',
             'HUBOT_TANGOCARD_ROOTURL'
             'HUBOT_TANGOCARD_USER',
             'HUBOT_TANGOCARD_KEY',
@@ -81,22 +106,29 @@ module.exports = (robot) ->
         robot.logger.debug "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
         userFetcher from_user, to_user, (from_obj, to_obj) ->
             robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"
+
             # Safety checks:
-            # - Don't target a nonexistent user
-            # - Don't target yourself
-            # - $150 or less
-            # - Any others?
+            # Don't target a nonexistent user or a robot
             if to_obj?.is_bot
                 return msg.reply "Robots don't _do_ high fives."
             unless to_obj?.email
                 return msg.reply "Who's #{msg.match[1]}?"
+            # Don't target yourself
             if to_obj?.email == from_obj?.email
                 return msg.reply "High-fiving yourself is just clapping."
+            # Apply value limits
             if amt > 0 and awardLimit == 0
                 return msg.reply "Gift cards are disabled."
             if amt > awardLimit
                 return msg.reply "$#{amt} is more like a high-500. Think smaller, like maybe $#{awardLimit || 150} or less."
+            # Daily limit from each user
+            [allowed, total] = record_daily_total from_user, amt
+            unless allowed
+                limit = parseInt(process.env.HUBOT_HIGHFIVE_DAILY_LIMIT || 500)
+                robot.logger.info "HIGHFIVE #{from_user} tried to send $#{amt}, but has already sent $#{total} (limit is $#{limit})"
+                return msg.reply "Sorry, you've already gifted $#{total} in the last 24 hours. Keep it under $#{limit}, please."
 
+            # I guess it's okay. Make some noise.
             roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
             chatService.message roomid, from_obj, to_obj, reason
 

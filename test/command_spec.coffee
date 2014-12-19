@@ -100,6 +100,16 @@ describe 'Tango Card', ->
                 expect(strs).to.match /.*\$25.*card.*/i
                 do done
 
+    it 'should refuse to send too much money in one day', (done) ->
+        process.env.HUBOT_HIGHFIVE_DAILY_LIMIT = 30
+        message_response 'highfive @foo $20 for nothing', 'send', (e,strs) ->
+            return unless strs.match /\$20/
+            message_response 'highfive @foo $15 for nothing', 'reply', (e,strs) ->
+                if strs.indexOf('$15') == -1
+                    expect(strs).to.match /.*sorry.*\$20.*\$30/i
+                    delete process.env.HUBOT_HIGHFIVE_DAILY_LIMIT
+                    do done
+
 # Test the command itself
 describe 'highfive', ->
     beforeEach prep
