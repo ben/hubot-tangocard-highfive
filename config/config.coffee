@@ -21,6 +21,7 @@ class MainViewModel
             'HUBOT_HIGHFIVE_SHEET_KEY',
             'HUBOT_HIGHFIVE_SHEET_DOCID',
             'HUBOT_HIGHFIVE_SHEET_SHEETNAME',
+            'ipaddr',
         ]
 
         for f in @fieldnames
@@ -124,12 +125,11 @@ class MainViewModel
 
         # TODO: create the credit card
         setupAccount.then =>
-            ip = require('ip').address()
             # Create the credit card
             data =
                 customer: cust
                 account_identifier: acct
-                client_ip: ip
+                client_ip: @ipaddr()
                 credit_card:
                     number: @cc_number()
                     security_code: auth

@@ -89,6 +89,7 @@ module.exports = (robot) ->
         ]
         for v in envvars
             data[v] = process.env[v] || ''
+        data.ipaddr = require('ip').address()
         res.send JSON.stringify data
 
     # Ask for the config UI
