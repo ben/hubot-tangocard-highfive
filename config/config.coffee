@@ -57,7 +57,8 @@ class MainViewModel
         "Basic " + btoa(user + ":" + pass)
 
     tangocard_get: (url, success, error) ->
-        fullurl = @HUBOT_TANGOCARD_ROOTURL() + url
+        baseurl = @HUBOT_TANGOCARD_ROOTURL() || 'https://api.tangocard.com/raas/v1/'
+        fullurl = "#{baseurl}#{url}"
         $.ajax
             type: 'GET'
             url: fullurl
@@ -68,7 +69,8 @@ class MainViewModel
                 Authorization: @basic_auth()
 
     tangocard_post: (url, data, success, error) ->
-        fullurl = @HUBOT_TANGOCARD_ROOTURL() + url
+        baseurl = @HUBOT_TANGOCARD_ROOTURL() || 'https://api.tangocard.com/raas/v1/'
+        fullurl = "#{baseurl}#{url}"
         $.ajax
             type: 'POST'
             url: fullurl
