@@ -124,15 +124,12 @@ class MainViewModel
 
         # TODO: create the credit card
         setupAccount.then =>
-            # Get the current IP address for the tangocard API
-            @tangocard_status 'Registering credit card...'
-            $.ajax 'http://jsonip.com/'
-        .then (jsonip) =>
+            ip = require('ip').address()
             # Create the credit card
             data =
                 customer: cust
                 account_identifier: acct
-                client_ip: jsonip.ip
+                client_ip: ip
                 credit_card:
                     number: @cc_number()
                     security_code: auth

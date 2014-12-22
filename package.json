@@ -38,6 +38,7 @@
   "dependencies": {
     "coffee-script": "^1.8.0",
     "edit-google-spreadsheet": "^0.2.13",
+    "ip": "^0.3.2",
     "moment": "^2.8.4"
   }
 }
