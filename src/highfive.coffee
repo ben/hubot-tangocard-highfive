@@ -170,7 +170,6 @@ GIFs = [
     'http://i.giphy.com/tX5iDEX1n1Xxe.gif',
     'http://i.giphy.com/xeXEpUVvAxCV2.gif',
     'http://i.giphy.com/UkhHIZ37IDRGo.gif',
-    'http://i.giphy.com/oUZqX2UgK2xnq.gif',
     'http://a.fod4.com/images/GifGuide/dancing/163563561.gif',
     'http://i.giphy.com/mEOjrcTumos80.gif',
     'http://i.giphy.com/99dauSQPLUuIg.gif',
