@@ -18,13 +18,26 @@ tango = require './lib/tango'
 try
     ChatService = require "./lib/#{process.env.HUBOT_HIGHFIVE_CHAT_SERVICE}_chat_service"
 catch
-    robot.logger.info "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
+    console.log "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
     ChatService = require './lib/dummy_chat_service'
 
 module.exports = (robot) ->
 
+    # Random GIF choice, including extras from the environment
+    extra_gifs = []
+    if process.env.HUBOT_HIGHFIVE_GIFS
+        try
+            env_gifs = process.env.HUBOT_HIGHFIVE_GIFS.split /\s+/
+            extra_gifs = (g for g in env_gifs when g)
+            robot.logger.debug "Gifs is now #{JSON.stringify GIFs.concat(extra_gifs)}"
+        catch e
+            robot.logger.warning "HUBOT_HIGHFIVE_GIFS isn't parseable. Check the readme for proper formatting. (#{e} '#{process.env.HUBOT_HIGHFIVE_GIFS}')"
+    gifChooser = ->
+        allgifs = GIFs.concat(extra_gifs)
+        allgifs[ Math.floor(Math.random() * allgifs.length) ]
+
     # Utility for getting two users at once
-    chatService = ChatService(robot, -> GIFs[ Math.floor(Math.random() * GIFs.length) ])
+    chatService = ChatService(robot, gifChooser)
     userFetcher = (uid1, uid2, callback) ->
         chatService.user uid1, (uobj1) ->
             chatService.user uid2, (uobj2) ->

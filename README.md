@@ -54,6 +54,8 @@ The basic high-five configuration consists of just two options:
 - The chat service (`HUBOT_HIGHFIVE_EMAIL_SERVICE`) helps the plugin figure out how to find the right room to send messages to, and how to format messages properly. If this is set to `slack`, you'll also need to configure `HUBOT_SLACK_API_TOKEN`.
 - The announcement room (`HUBOT_HIGHFIVE_ROOM`)  sets the room in which high-fives are announced. If it's empty, the plugin will just spit messages out to the room it's triggered in.
 
+You can add some custom GIFs by specifying `HUBOT_HIGHFIVE_GIFS` to be a set of URLs separated by spaces.
+
 ## Tango Card Configuration
 
 The plugin also has the ability to automatically order gift cards from Tango Card and send them to the target user's email address. To access the Tango Card API, you'll have to go to their [information page](https://www.tangocard.com/giftcardapi) and click the "Get More Information" button at the bottom.
