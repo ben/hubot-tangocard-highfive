@@ -1,6 +1,6 @@
 {
   "name": "hubot-tangocard-highfive",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Hubot plugin for high-fiving and optionally sending gift cards to chat users",
   "main": "index.coffee",
   "scripts": {
@@ -39,6 +39,7 @@
     "coffee-script": "^1.8.0",
     "edit-google-spreadsheet": "^0.2.13",
     "ip": "^0.3.2",
+    "lodash": "^3.6.0",
     "moment": "^2.8.4"
   }
 }

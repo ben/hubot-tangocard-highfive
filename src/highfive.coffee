@@ -5,6 +5,7 @@
 #   hubot highfive @<user> for <awesome thing> - makes a loud announcement in a public chatroom
 #   hubot highfive @<user> $<amount> for <awesome thing> - makes a loud announcement and sends the user an Amazon.com giftcard
 #   hubot highfive config - show URL for configuration UI
+#   hubot highfive stats - show stats about high-fives
 
 Path = require 'path'
 fs = require 'fs'
@@ -12,7 +13,7 @@ coffee = require 'coffee-script'
 moment = require 'moment'
 
 TangoApp = require './lib/api/tangocard'
-logToSheet = require './lib/sheet'
+sheet = require './lib/sheet'
 tango = require './lib/tango'
 
 try
@@ -110,6 +111,9 @@ module.exports = (robot) ->
         hostname = process.env.HUBOT_HOSTNAME || 'http://localhost:8080'
         msg.reply "#{hostname}/highfive/"
 
+    robot.respond /highfive stats/, (msg) ->
+        sheet.stats msg
+
     # The main responder
     robot.respond /highfive (.+?)( \$(\d+))? for (.*)/, (msg) ->
         from_user = msg.message.user.name
@@ -147,7 +151,7 @@ module.exports = (robot) ->
             chatService.message roomid, from_obj, to_obj, reason
 
             if amt == 0
-                logToSheet robot, [
+                sheet.logToSheet robot, [
                     moment(),       # date
                     from_obj.email, # from
                     to_obj.email,   # to
@@ -161,7 +165,7 @@ module.exports = (robot) ->
                 , (order) ->
                     msg.send "A $#{amt} gift card is on its way!"
                     m = moment(order.delivered_at).format 'YYYY/MM/DD HH:mm:ss'
-                    logToSheet robot, [
+                    sheet.logToSheet robot, [
                         m,                    # date
                         from_obj.email,       # from
                         to_obj.email,         # to
