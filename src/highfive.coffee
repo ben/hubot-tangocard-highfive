@@ -115,12 +115,13 @@ module.exports = (robot) ->
         sheet.stats msg
 
     # The main responder
-    robot.respond /highfive (.+?)( \$(\d+))? for (.*)/, (msg) ->
+    robot.respond /highfive (.+?)(?: \$(\d+))? (?:for )?(.*)/, (msg) ->
+        console.log msg.match[1], msg.match[2], msg.match[3]
         from_user = msg.message.user.name
         to_user = msg.match[1][1..]
-        amt = parseInt(msg.match[3] or 0)
+        amt = parseInt(msg.match[2] or 0)
         awardLimit = parseInt(process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
-        reason = msg.match[4]
+        reason = msg.match[3]
         robot.logger.debug "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
         userFetcher from_user, to_user, (from_obj, to_obj) ->
             robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"

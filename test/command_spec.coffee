@@ -153,6 +153,14 @@ describe 'highfive', ->
             expect(strs).to.equal "Who's @bar?"
             do done
 
+    it "should be okay with 'for' or not", (done) ->
+        message_response 'highfive @foo something', 'send', (e,strs) ->
+            expect(strs).to.match /woo/i
+            expect(strs).to.contain 'foo'
+            expect(strs).to.contain 'mocha'
+            expect(strs).to.match /\.gif/i
+            do done
+
 describe 'config', ->
     beforeEach prep
     afterEach cleanup
