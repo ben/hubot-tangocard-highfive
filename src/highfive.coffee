@@ -146,6 +146,16 @@ module.exports = (robot) ->
             roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
             chatService.message roomid, from_obj, to_obj, reason
 
+            if amt == 0
+                logToSheet robot, [
+                    moment(),       # date
+                    from_obj.email, # from
+                    to_obj.email,   # to
+                    amt,            # amount
+                    reason,         # reason
+                    '',             # gift card code
+                    # TODO: link to transcript?
+                  ]
             if awardLimit != 0 and amt > 0
                 return tango(robot).order msg, from_obj, to_obj, amt, reason
                 , (order) ->
