@@ -153,12 +153,12 @@ module.exports = (robot) ->
 
             if amt == 0
                 sheet.logToSheet robot, [
-                    moment(),       # date
-                    from_obj.email, # from
-                    to_obj.email,   # to
-                    amt,            # amount
-                    reason,         # reason
-                    '',             # gift card code
+                    moment().format('YYYY/MM/DD HH:mm:ss'), # date
+                    from_obj.email,                         # from
+                    to_obj.email,                           # to
+                    amt,                                    # amount
+                    reason,                                 # reason
+                    '',                                     # gift card code
                     # TODO: link to transcript?
                   ]
             if awardLimit != 0 and amt > 0
