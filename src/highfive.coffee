@@ -115,7 +115,7 @@ module.exports = (robot) ->
         sheet.stats msg
 
     # The main responder
-    robot.respond /highfive (.+?)(?: \$(\S+))? (?:for )?(.*)/, (msg) ->
+    robot.respond /highfive (.+?)(?: +\$(\S+))? +(?:for )?(.*)/, (msg) ->
         robot.logger.debug msg.match[1], msg.match[2], msg.match[3]
         from_user = msg.message.user.name
         to_user = msg.match[1][1..]
