@@ -166,7 +166,6 @@ module.exports = (robot) ->
 
             # Daily Double! Randomly double the award amount
             if do_double
-                robot.logger.debug "DAILY DOUBLE #{amt} -> #{amt*2}"
                 amt *= 2
                 chatService.double roomid, doubleChooser
 
@@ -197,10 +196,9 @@ module.exports = (robot) ->
 
                     # Randomly high-five back $10
                     if do_boomerang
-                        robot.logger.debug "BOOMERANG"
                         return tango(robot).order msg, from_obj, from_obj, 10, 'Boomerang'
                         , (order) ->
-                            chatService.boomerang from_obj
+                            chatService.boomerang roomid, from_obj, 
                             sheet.logToSheet robot, [
                                 m,
                                 from_obj.email,
