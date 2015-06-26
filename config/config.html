@@ -20,16 +20,11 @@
     <div class="grid-form">
         <fieldset>
             <legend>Plugin Settings</legend>
-            <div data-row-span="4">
+            <div data-row-span="3">
                 <div data-field-span="1">
                     <label>Chat Service</label>
                     <select data-bind="options: services, value: HUBOT_HIGHFIVE_CHAT_SERVICE">
                     </select>
-                </div>
-                <div data-field-span="1">
-                    <label>Announcement Room</label>
-                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_ROOM,
-                                                  valueUpdate: 'input'">
                 </div>
                 <div data-field-span="1">
                     <label>Award Limit (default 150)</label>
@@ -40,6 +35,24 @@
                     <label>Daily Gifting Limit (default 500/giver/day)</label>
                     <input type="text" data-bind="value: HUBOT_HIGHFIVE_DAILY_LIMIT,
                                                   valueUpdate: 'input'">
+                </div>
+            </div>
+
+            <div data-row-span=3>
+                <div data-field-span="1">
+                    <label>Announcement Room</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_ROOM,
+                                                  valueUpdate: 'input'">
+                </div>
+                <div data-field-span="1">
+                    <label>Daily double rate (0-1, default 0.1)</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_DOUBLE_RATE,
+                                                  valueUpdate: 'input'"/>
+                </div>
+                <div data-field-span="1">
+                    <label>Boomerang rate (0-1, default 0.1)</label>
+                    <input type="text" data-bind="value: HUBOT_HIGHFIVE_BOOMERANG_RATE,
+                                                  valueUpdate: 'input'"/>
                 </div>
             </div>
 
