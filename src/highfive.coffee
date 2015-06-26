@@ -130,6 +130,11 @@ module.exports = (robot) ->
         userFetcher from_user, to_user, (from_obj, to_obj) ->
             robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"
 
+            double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
+            boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
+            do_double = Math.random() < double_rate
+            do_boomerang = Math.random() < boomerang_rate
+
             # Safety checks:
             # Don't target a nonexistent user or a robot
             if to_obj?.is_bot
@@ -156,8 +161,7 @@ module.exports = (robot) ->
             chatService.message roomid, from_obj, to_obj, reason
 
             # Daily Double! Randomly double the award amount
-            double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
-            if Math.random() < double_rate
+            if do_double
                 robot.logger.debug "DAILY DOUBLE #{amt} -> #{amt*2}"
                 amt *= 2
                 chatService.double roomid, doubleChooser
@@ -188,8 +192,7 @@ module.exports = (robot) ->
                     ]
 
                     # Randomly high-five back $10
-                    boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
-                    if Math.random() < boomerang_rate
+                    if do_boomerang
                         robot.logger.debug "BOOMERANG"
                         return tango(robot).order msg, from_obj, from_obj, 10, 'Boomerang'
                         , (order) ->
