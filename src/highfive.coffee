@@ -36,6 +36,8 @@ module.exports = (robot) ->
     gifChooser = ->
         allgifs = GIFs.concat(extra_gifs)
         allgifs[ Math.floor(Math.random() * allgifs.length) ]
+    doubleChooser = ->
+        doubleGifs[ Math.floor(Math.random() * doubleGifs.length) ]
 
     # Utility for getting two users at once
     chatService = ChatService(robot, gifChooser)
@@ -153,6 +155,13 @@ module.exports = (robot) ->
             roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
             chatService.message roomid, from_obj, to_obj, reason
 
+            # Daily Double! Randomly double the award amount
+            double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
+            if Math.random() < double_rate
+                robot.logger.debug "DAILY DOUBLE #{amt} -> #{amt*2}"
+                amt *= 2
+                chatService.double roomid, doubleChooser
+
             if amt == 0
                 sheet.logToSheet robot, [
                     moment().format('YYYY/MM/DD HH:mm:ss'), # date
@@ -178,6 +187,21 @@ module.exports = (robot) ->
                         # TODO: link to transcript?
                     ]
 
+                    # Randomly high-five back $10
+                    boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
+                    if Math.random() < boomerang_rate
+                        robot.logger.debug "BOOMERANG"
+                        return tango(robot).order msg, from_obj, from_obj, 10, 'Boomerang'
+                        , (order) ->
+                            chatService.boomerang from_obj
+                            sheet.logToSheet robot, [
+                                m,
+                                from_obj.email,
+                                from_obj.email,
+                                10,
+                                '(Boomerang)',
+                                order.reward.number,
+                            ]
 
 # GIFs for celebration
 GIFs = [
@@ -238,4 +262,13 @@ GIFs = [
     'http://i.giphy.com/PTJGTImkgRycU.gif',
     'http://i.giphy.com/l41lHvfYqxWus1oYw.gif',
     'http://i.giphy.com/xIhGpmuVtuEpi.gif',
+]
+
+doubleGifs = [
+    'http://38.media.tumblr.com/95c33d41c60bdacf23d283afc8f334cd/tumblr_mlnjwx8GHP1r7w8cbo1_250.gif',
+    'http://33.media.tumblr.com/214e4048f22e926ded55fd4ae241f6ec/tumblr_mnf63iWNST1rdmnfqo1_500.gif',
+    'http://media.giphy.com/media/tBb19f3Vpki3RF6ukne/giphy.gif',
+    'http://media.giphy.com/media/hxXTaintauS9G/giphy.gif',
+    'http://cdn.gifbay.com/2013/01/insane_double_backflip-25659.gif',
+    'http://i.imgur.com/Zed3hiu.gif',
 ]
