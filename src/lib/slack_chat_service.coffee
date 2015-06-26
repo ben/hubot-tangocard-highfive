@@ -2,6 +2,8 @@
 #
 # - `user` takes a user name and returns an object with (at least) `name`, `id`, and `email` properties
 # - `message` takes a room name/id, a "from" user, and a "to" user, and a high-five reason, and it pumps out an appropriately noisy message into the room.
+# - `double` takes a room name/id, and announces a daily double
+# - `boomerang` takes a room name/id and a user, and announces that that user is getting $10
 
 SlackApp = require './api/slack'
 
@@ -37,3 +39,9 @@ module.exports = (robot, gifGenerator) ->
         <!channel> WOOOOOOOOO! <@#{from_user.name}> is high-fiving <@#{to_user.name}> for #{reason}!
         """
         robot.adapter.send {room: roomid}, message
+
+    double: (roomid, doubleChooser) ->
+        robot.messageRoom roomid, "*DAILY DOUBLE!* #{doubleChooser()}"
+
+    boomerang: (roomid, user) ->
+        robot.messageRoom roomid, "*BOOMERANG!* You're getting $10 too, <@#{user.name}>!"
