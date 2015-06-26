@@ -22,7 +22,12 @@ catch
     console.log "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
     ChatService = require './lib/dummy_chat_service'
 
+double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
+boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
+
 module.exports = (robot) ->
+    robot.logger.debug "double rate is #{double_rate}"
+    robot.logger.debug "boomerang rate is #{boomerang_rate}"
 
     # Random GIF choice, including extras from the environment
     extra_gifs = []
@@ -130,10 +135,9 @@ module.exports = (robot) ->
         userFetcher from_user, to_user, (from_obj, to_obj) ->
             robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"
 
-            double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
-            boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
             do_double = Math.random() < double_rate
             do_boomerang = Math.random() < boomerang_rate
+            robot.logger.debug "Double #{do_double}, boomerang #{do_boomerang}"
 
             # Safety checks:
             # Don't target a nonexistent user or a robot
