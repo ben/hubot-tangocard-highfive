@@ -26,8 +26,8 @@ double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
 boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
 
 module.exports = (robot) ->
-    robot.logger.debug "double rate is #{double_rate}"
-    robot.logger.debug "boomerang rate is #{boomerang_rate}"
+    robot.logger.info "double rate is #{double_rate}"
+    robot.logger.info "boomerang rate is #{boomerang_rate}"
 
     # Random GIF choice, including extras from the environment
     extra_gifs = []
@@ -135,9 +135,12 @@ module.exports = (robot) ->
         userFetcher from_user, to_user, (from_obj, to_obj) ->
             robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"
 
-            do_double = Math.random() < double_rate
-            do_boomerang = Math.random() < boomerang_rate
-            robot.logger.debug "Double #{do_double}, boomerang #{do_boomerang}"
+            draw1 = Math.random()
+            draw2 = Math.random()
+            do_double = draw1 < double_rate
+            do_boomerang = draw2 < boomerang_rate
+            robot.logger.info "Double #{draw1} < #{double_rate} => #{do_double}"
+            robot.logger.info "Boomerang #{draw2} < #{boomerang_rate} => #{do_boomerang}"
 
             # Safety checks:
             # Don't target a nonexistent user or a robot
