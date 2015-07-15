@@ -8,7 +8,7 @@ module.exports = (robot) ->
     acct = process.env.HUBOT_TANGOCARD_ACCOUNT
     cc = process.env.HUBOT_TANGOCARD_CC
     auth = process.env.HUBOT_TANGOCARD_AUTH
-    amtToFund = (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150) * 2 * 100 # in cents
+    amtToFund = (process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150) * 10 * 100 # in cents
 
     order: (msg, from_user, to_user, dollars, reason, callback) ->
 
