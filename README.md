@@ -3,7 +3,7 @@
 This is a [Hubot](https://hubot.github.com/) plugin with two functions:
 
 1. Enable you to publicly high-five someone in the chat room.
-1. Optionally send them an Amazon gift card.
+1. Optionally send them a gift card.
 
 ## Installation
 
@@ -32,7 +32,7 @@ hubot highfive @john for nailing that design
 ```
 
 Hubot will then send a message to the current room (or a configurable public room, see below) with congratulations and a nice GIF.
-If configured properly, this command will additionally trigger an Amazon.com gift card to be sent to the high-fived user:
+If configured properly, this command will additionally trigger a gift card to be sent to the high-fived user:
 
 ```
 hubot highfive @jane $25 for landing that huge account
@@ -64,6 +64,7 @@ Once you've done that, you'll need to tell the plugin some values:
 
 - The award limit (`HUBOT_HIGHFIVE_AWARD_LIMIT`) sets an upper bound on the size of gift card that can be sent. The default is $150.
 - The daily limit (`HUBOT_HIGHFIVE_DAILY_LIMIT`) sets a limit on how much any single user can give out in a day. The default is $500.
+- The gift card SKU (`HUBOT_TANGOCARD_SKU`) configures which type of gift card you want to send to your team.  You can see the complete list at https://sandbox.tangocard.com/raas/v1/rewards
 - Overriding the Tango Card root URL (`HUBOT_TANGOCARD_ROOTURL`) lets you use the sandbox API for testing (it's at https://sandbox.tangocard.com/raas/v1/). The default is the production endpoint.
 - When you sign up for the Tango Card API, they'll provide you with a username (`HUBOT_TANGOCARD_USER`) and a secret key (`HUBOT_TANGOCARD_KEY`).
 - The customer and account fields (`HUBOT_TANGOCARD_CUSTOMER` and `HUBOT_TANGOCARD_ACCOUNT`) are fairly arbitrary, and only really exist so you can track expenses through Tango Card. This plugin will use the same values for every card it orders.
@@ -97,5 +98,4 @@ This will set the following environment variables:
 ## TODO
 
 - Chat services that aren't Slack.
-- Tango Card gifts other than Amazon.com
 - Other logging services
