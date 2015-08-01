@@ -22,7 +22,7 @@ class TangoApp extends BaseApiApp
             security_code: auth
         , callback
 
-    orderAmazonDotComCard: (cust, acct, campaign, amt, from, subject, to, email, message, callback) ->
+    orderGiftCard: (cust, acct, campaign, amt, from, subject, to, email, message, callback) ->
         data =
             customer: cust
             account_identifier: acct
@@ -30,7 +30,7 @@ class TangoApp extends BaseApiApp
             recipient:
                 name: to
                 email: email
-            sku: "AMZN-E-V-STD"
+            sku: process.env.HUBOT_TANGOCARD_SKU || "AMZN-E-V-STD"
             amount: amt
             reward_from: from
             reward_subject: subject

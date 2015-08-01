@@ -15,7 +15,7 @@ module.exports = (robot) ->
         doOrder = ->
             # Place an order
             message = "High five for #{reason}!"
-            app.orderAmazonDotComCard cust, acct, 'High-five',
+            app.orderGiftCard cust, acct, 'High-five',
                                       Math.floor(dollars*100),
                                       from_user.real_name, 'High Five!',
                                       to_user.real_name, to_user.email,
