@@ -270,6 +270,12 @@ GIFs = [
     'http://i.giphy.com/PTJGTImkgRycU.gif',
     'http://i.giphy.com/l41lHvfYqxWus1oYw.gif',
     'http://i.giphy.com/xIhGpmuVtuEpi.gif',
+    'http://www.reactiongifs.com/wp-content/uploads/2013/09/bb-high-five.gif',
+    'http://www.reactiongifs.com/r/tghf.gif',
+    'http://www.reactiongifs.com/wp-content/uploads/2013/05/fallingfan.gif',
+    'http://www.reactiongifs.com/wp-content/uploads/2012/11/high-fives.gif',
+    'http://www.reactiongifs.com/r/bbb.gif',
+    'http://www.reactiongifs.com/wp-content/uploads/2013/02/what-up.gif',
 ]
 
 doubleGifs = [
