@@ -76,9 +76,11 @@ The plugin will automatically log gift cards to a Google Spreadsheet. To make th
 
 1. Open the [Google Developers Console](https://console.developers.google.com/project) and create an application. The name doesn't matter.
 1. Open the "APIs" section and enable the "Drive API" for your application.
-1. Open the "Credentials" section and create a "New Client ID". Choose a "Service Account", and take a note of the resulting password, because you won't be able to get it back.
-    * Also, copy the service account's email address and plug it into the highfive configuration form.
-1. The previous step should have downloaded a key file to your computer. Run the following command to convert it to a PEM file:
+1. Open the "Credentials" section and create a "New Client ID". Choose a "Service Account".
+1. Copy the service account's email address and plug it into the highfive configuration form.
+1. A JSON file may download automatically - ignore it.
+1. Click "Generate new P12 key", and take a note of the resulting password, because you won't be able to get it back.
+1. The previous step should have downloaded a `.p12` key file to your computer. Run the following command to convert it to a PEM file:
   ```
   openssl pkcs12 -in downloaded-key-file.p12 -out your-key-file.pem -nodes
   ```
