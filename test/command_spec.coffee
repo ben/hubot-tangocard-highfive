@@ -30,11 +30,6 @@ process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE = '0'
 prep = (done) ->
     robot = new Robot path.resolve(__dirname), 'shell', yes, 'TestHubot'
     robot.adapter.on 'connected', ->
-        # force-reload project scripts
-        # console.log 'reloading', path.resolve './index'
-        # console.log 'reloading', path.resolve './src/highfive'
-        # delete require.cache[path.resolve './index']
-        # delete require.cache[path.resolve './src/highfive']
         robot.loadFile path.resolve('.'), 'index.coffee'
         # Some test users
         user = robot.brain.userForId "1",
