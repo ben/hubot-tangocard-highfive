@@ -2,6 +2,7 @@
 Robot = require "hubot/src/robot"
 TextMessage = require("hubot/src/message").TextMessage
 path = require 'path'
+moment = require 'moment'
 
 # Load assertion methods to this scope
 { expect } = require 'chai'
@@ -15,6 +16,15 @@ robot = user = {}
 process.env.HUBOT_HIGHFIVE_CHAT_SERVICE = 'dummy'
 process.env.PORT = 8088
 process.env.HUBOT_HOSTNAME = 'http://localhost:8088'
+
+# Mock out the tangocard API
+process.env.HUBOT_TANGOCARD_ROOTURL = 'http://tango.example.com/'
+process.env.HUBOT_TANGOCARD_CUSTOMER = 'Foo'
+process.env.HUBOT_TANGOCARD_ACCOUNT = 'Bar'
+
+# No daily doubles or boomerangs unless we test them explicitly
+process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '0'
+process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE = '0'
 
 # Create a robot, load our script
 prep = (done) ->
@@ -33,6 +43,28 @@ prep = (done) ->
             room: '#mocha'
         done()
     robot.run()
+
+prepNock = ->
+    nock('http://tango.example.com')
+        .filteringPath /Authorization=[^&]*/g, 'Authorization=FOOBAR'
+        .get('/accounts/Foo/Bar?Authorization=FOOBAR')
+        .reply 200,
+            success: true
+            account:
+                available_balance: 100
+        .post('/cc_fund?Authorization=FOOBAR')
+        .reply 200,
+            success: true
+        .post('/orders?Authorization=FOOBAR')
+        .reply 200,
+            success: true
+            order:
+                delivered_at: moment.utc().toISOString()
+                reward:
+                    number: '123'
+    nock('http://jsonip.com')
+        .get('/')
+        .reply 200, ip: '0.0.0.0'
 
 cleanup = ->
     robot.server.close()
@@ -64,34 +96,10 @@ describe 'help', ->
         expect(expected).to.contain(x) for x in help
         do done
 
-# Mock out the tangocard API
-process.env.HUBOT_TANGOCARD_ROOTURL = 'http://tango.example.com/'
-process.env.HUBOT_TANGOCARD_CUSTOMER = 'Foo'
-process.env.HUBOT_TANGOCARD_ACCOUNT = 'Bar'
-
 # Test the Tango Card API implementation
 describe 'Tango Card', ->
     beforeEach (done) ->
-        nock('http://tango.example.com')
-            .filteringPath /Authorization=[^&]*/g, 'Authorization=FOOBAR'
-            .get('/accounts/Foo/Bar?Authorization=FOOBAR')
-            .reply 200,
-                success: true
-                account:
-                    available_balance: 100
-            .post('/cc_fund?Authorization=FOOBAR')
-            .reply 200,
-                success: true
-            .post('/orders?Authorization=FOOBAR')
-            .reply 200,
-                success: true
-                order:
-                    delivered_at: 'now'
-                    reward:
-                        number: '123'
-        nock('http://jsonip.com')
-            .get('/')
-            .reply 200, ip: '0.0.0.0'
+        do prepNock
         prep done
     afterEach cleanup
 
@@ -159,6 +167,22 @@ describe 'highfive', ->
             expect(strs).to.contain 'foo'
             expect(strs).to.contain 'mocha'
             expect(strs).to.match /\.gif/i
+            do done
+
+
+describe 'daily double', ->
+    beforeEach (done) ->
+        do prepNock
+        process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '1'
+        prep done
+    afterEach ->
+        process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '0'
+        do cleanup
+
+    it 'should double the amount', (done) ->
+        message_response 'highfive @foo $10 for something', 'send', (e, strs) ->
+            return unless strs.match /gift card is on its way/
+            expect(strs).to.match /A \$20 gift card is on its way/
             do done
 
 describe 'config', ->

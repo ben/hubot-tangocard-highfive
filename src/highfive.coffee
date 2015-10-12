@@ -22,10 +22,10 @@ catch
     console.log "HIGHFIVE Falling back to dummy chat service. You probably don't want this; set HUBOT_HIGHFIVE_CHAT_SERVICE to fix it."
     ChatService = require './lib/dummy_chat_service'
 
-double_rate = parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE || 0.1)
-boomerang_rate = parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE || 0.1)
-
 module.exports = (robot) ->
+    double_rate = if process.env.HUBOT_HIGHFIVE_DOUBLE_RATE? then parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE) else 0.1
+    boomerang_rate = if process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE? then parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE) else 0.1
+
     robot.logger.info "double rate is #{double_rate}"
     robot.logger.info "boomerang rate is #{boomerang_rate}"
 
@@ -167,11 +167,6 @@ module.exports = (robot) ->
             roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
             chatService.message roomid, from_obj, to_obj, reason
 
-            # Daily Double! Randomly double the award amount
-            if do_double
-                amt *= 2
-                chatService.double roomid, doubleChooser
-
             if amt == 0
                 sheet.logToSheet robot, [
                     moment().format('YYYY/MM/DD HH:mm:ss'), # date
@@ -182,7 +177,13 @@ module.exports = (robot) ->
                     '',                                     # gift card code
                     # TODO: link to transcript?
                   ]
+
             if awardLimit != 0 and amt > 0
+                # Daily Double! Randomly double the award amount
+                if do_double
+                    amt *= 2
+                    chatService.double roomid, doubleChooser
+
                 return tango(robot).order msg, from_obj, to_obj, amt, reason
                 , (order) ->
                     msg.send "A $#{amt} gift card is on its way!"
@@ -201,14 +202,15 @@ module.exports = (robot) ->
                     if do_boomerang
                         return tango(robot).order msg, from_obj, from_obj, 10, 'Boomerang'
                         , (order) ->
-                            chatService.boomerang roomid, from_obj, 
+                            chatService.boomerang roomid, from_obj,
                             sheet.logToSheet robot, [
-                                m,
-                                from_obj.email,
-                                from_obj.email,
-                                10,
-                                '(Boomerang)',
-                                order.reward.number,
+                                m,                    # date (why not *new* order date?)
+                                from_obj.email,       # from
+                                from_obj.email,       # to
+                                10,                   # amount
+                                '(Boomerang)',        # why
+                                order.reward.number,  # gift card code
+                                # TODO: link to transcript?
                             ]
 
 # GIFs for celebration
