@@ -7,6 +7,7 @@ class MainViewModel
         @fieldnames = [
             'HUBOT_HIGHFIVE_CHAT_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
+            'HUBOT_HIGHFIVE_ALLOW_EAVESDROPPING',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
             'HUBOT_HIGHFIVE_DAILY_LIMIT',
             'HUBOT_HIGHFIVE_DOUBLE_RATE',

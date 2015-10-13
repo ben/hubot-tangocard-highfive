@@ -23,11 +23,17 @@ catch
     ChatService = require './lib/dummy_chat_service'
 
 module.exports = (robot) ->
-    double_rate = if process.env.HUBOT_HIGHFIVE_DOUBLE_RATE? then parseFloat(process.env.HUBOT_HIGHFIVE_DOUBLE_RATE) else 0.1
-    boomerang_rate = if process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE? then parseFloat(process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE) else 0.1
+    double_rate = if process.env.HUBOT_HIGHFIVE_DOUBLE_RATE? then parseFloat process.env.HUBOT_HIGHFIVE_DOUBLE_RATE else 0.1
+    boomerang_rate = if process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE? then parseFloat process.env.HUBOT_HIGHFIVE_BOOMERANG_RATE else 0.1
+    daily_limit = if process.env.HUBOT_HIGHFIVE_DAILY_LIMIT? then parseInt process.env.HUBOT_HIGHFIVE_DAILY_LIMIT else 500
+    award_limit = if process.env.HUBOT_HIGHFIVE_AWARD_LIMIT? then parseInt process.env.HUBOT_HIGHFIVE_AWARD_LIMIT else 150
+    allow_eavesdropping = process.env.HUBOT_HIGHFIVE_ALLOW_EAVESDROPPING == 'true'
 
     robot.logger.info "double rate is #{double_rate}"
     robot.logger.info "boomerang rate is #{boomerang_rate}"
+    robot.logger.info "daily limit is #{daily_limit}"
+    robot.logger.info "award limit is #{award_limit}"
+    robot.logger.info "allow eavesdropping is #{allow_eavesdropping}"
 
     # Random GIF choice, including extras from the environment
     extra_gifs = []
@@ -56,14 +62,13 @@ module.exports = (robot) ->
     # - The new daily total. This includes `amount` if it fits within the limit.
     record_daily_total = (username, amount) ->
         yesterday = moment().subtract 1, 'day'
-        limit = parseInt(process.env.HUBOT_HIGHFIVE_DAILY_LIMIT || 500)
         # Fetch from brain
         current_totals = robot.brain.get('highfive_daily_totals') or {}
         # Calculate the running total in the last 24 hours
         users_totals = (current_totals[username] or [])
         users_totals = users_totals.filter((x) -> x.date >= yesterday)
         total = users_totals.reduce ((acc,x) -> acc + x.amt), 0
-        unless total + amount <= limit
+        unless total + amount <= daily_limit
             # Too much
             return [false, total]
         # Permission granted. Record the gift.
@@ -93,6 +98,7 @@ module.exports = (robot) ->
         envvars = [
             'HUBOT_HIGHFIVE_CHAT_SERVICE',
             'HUBOT_HIGHFIVE_ROOM',
+            'HUBOT_HIGHFIVE_ALLOW_EAVESDROPPING',
             'HUBOT_HIGHFIVE_AWARD_LIMIT',
             'HUBOT_HIGHFIVE_DAILY_LIMIT',
             'HUBOT_HIGHFIVE_DOUBLE_RATE',
@@ -123,45 +129,59 @@ module.exports = (robot) ->
     robot.respond /highfive stats/, (msg) ->
         sheet.stats msg
 
+    # In order to support both directly-addressed messages ('hubot highfive @xxx')
+    # and also eavesdropping ('highfive @xxx'), we need a regular expression that
+    # optionally matches Hubot's name at the beginning.  We can leverage Hubot's
+    # existing `respondPattern` functionality, and then re-wrap the logic to make
+    # it optional.
+    directAddressExpr = (robot.respondPattern '').toString().split('/')[1]
+
+    # Remove the leading `^` and trailing `(?:)` if they're there.
+    directAddressExpr = directAddressExpr[1..] if directAddressExpr[0] == '^'
+    directAddressExpr = directAddressExpr[..-5] if directAddressExpr[-4..] == '(?:)'
+
+    # Now build the real regular expression.  We create an in-place literal (so
+    # that we don't have to contend with escaping the backslashes), then convert
+    # to a string in order to substitute in the directed form of address.
+    highfiveExpr = /^(DIRECT_ADDRESS)?\s*highfive\s+(.+?)(?:\s+\$(\S+))?(?:\s+for)?\s+(.*)/.toString().split('/')[1]
+    highfiveExpr = highfiveExpr.replace 'DIRECT_ADDRESS', directAddressExpr
+    highfiveRe = new RegExp highfiveExpr
+
     # The main responder
-    robot.respond /highfive (.+?)(?: +\$(\S+))? +(?:for )?(.*)/, (msg) ->
-        robot.logger.debug msg.match[1], msg.match[2], msg.match[3]
+    robot.hear highfiveRe, (msg) ->
+        [direct_address, to_user_raw, amt, reason] = msg.match[1..4]
+        robot.logger.debug direct_address, to_user_raw, amt, reason
+
+        if not allow_eavesdropping and not direct_address?
+            return
+
         from_user = msg.message.user.name
-        to_user = msg.match[1][1..]
-        amt = parseFloat(msg.match[2] or 0)
-        awardLimit = parseInt(process.env.HUBOT_HIGHFIVE_AWARD_LIMIT || 150)
-        reason = msg.match[3]
+        to_user = to_user_raw[1..]
+        amt = if amt? then parseFloat amt else 0
         robot.logger.debug "from `#{from_user}` to `#{to_user}` amount `#{amt}` reason `#{reason}`"
+
         userFetcher from_user, to_user, (from_obj, to_obj) ->
             robot.logger.debug "from #{from_obj?.email} to #{to_obj?.email}"
-
-            draw1 = Math.random()
-            draw2 = Math.random()
-            do_double = draw1 < double_rate
-            do_boomerang = draw2 < boomerang_rate
-            robot.logger.info "Double #{draw1} < #{double_rate} => #{do_double}"
-            robot.logger.info "Boomerang #{draw2} < #{boomerang_rate} => #{do_boomerang}"
 
             # Safety checks:
             # Don't target a nonexistent user or a robot
             if to_obj?.is_bot
                 return msg.reply "Robots don't _do_ high fives."
             unless to_obj?.email
-                return msg.reply "Who's #{msg.match[1]}?"
+                return msg.reply "Who's #{to_user_raw}?"
             # Don't target yourself
             if to_obj?.email == from_obj?.email
                 return msg.reply "High-fiving yourself is just clapping."
             # Apply value limits
-            if amt > 0 and awardLimit == 0
+            if amt > 0 and award_limit == 0
                 return msg.reply "Gift cards are disabled."
-            if amt > awardLimit
-                return msg.reply "$#{amt} is more like a high-500. Think smaller, like maybe $#{awardLimit || 150} or less."
+            if amt > award_limit
+                return msg.reply "$#{amt} is more like a high-500. Think smaller, like maybe $#{award_limit} or less."
             # Daily limit from each user
             [allowed, total] = record_daily_total from_user, amt
             unless allowed
-                limit = parseInt(process.env.HUBOT_HIGHFIVE_DAILY_LIMIT || 500)
-                robot.logger.info "HIGHFIVE #{from_user} tried to send $#{amt}, but has already sent $#{total} (limit is $#{limit})"
-                return msg.reply "Sorry, you've already gifted $#{total} in the last 24 hours. Keep it under $#{limit}, please."
+                robot.logger.info "HIGHFIVE #{from_user} tried to send $#{amt}, but has already sent $#{total} (limit is $#{daily_limit})"
+                return msg.reply "Sorry, you've already gifted $#{total} in the last 24 hours. Keep it under $#{daily_limit}, please."
 
             # I guess it's okay. Make some noise.
             roomid = process.env.HUBOT_HIGHFIVE_ROOM || msg.envelope.room
@@ -178,7 +198,14 @@ module.exports = (robot) ->
                     # TODO: link to transcript?
                   ]
 
-            if awardLimit != 0 and amt > 0
+            if award_limit != 0 and amt > 0
+                draw1 = Math.random()
+                draw2 = Math.random()
+                do_double = draw1 < double_rate
+                do_boomerang = draw2 < boomerang_rate
+                robot.logger.info "Double #{draw1} < #{double_rate} => #{do_double}"
+                robot.logger.info "Boomerang #{draw2} < #{boomerang_rate} => #{do_boomerang}"
+
                 # Daily Double! Randomly double the award amount
                 if do_double
                     amt *= 2
