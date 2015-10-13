@@ -145,7 +145,7 @@ module.exports = (robot) ->
     # to a string in order to substitute in the directed form of address.
     highfiveExpr = /^(DIRECT_ADDRESS)?\s*highfive\s+(.+?)(?:\s+\$(\S+))?(?:\s+for)?\s+(.*)/.toString().split('/')[1]
     highfiveExpr = highfiveExpr.replace 'DIRECT_ADDRESS', directAddressExpr
-    highfiveRe = new RegExp highfiveExpr
+    highfiveRe = new RegExp highfiveExpr, 'i'
 
     # The main responder
     robot.hear highfiveRe, (msg) ->
