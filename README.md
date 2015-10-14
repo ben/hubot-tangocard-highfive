@@ -49,10 +49,11 @@ hubot highfive config
 Hubot will give you a link to the configuration page, where a form will help walk you through all the environment variables you need/want to set.
 When you're done filling out the form (and optionally submitting the credit-card information), copy the contents of the text area at the bottom, and paste them into a `heroku config` or `export` command-line, so all the values become part of Hubot's environment.
 
-The basic high-five configuration consists of just two options:
+The basic high-five configuration consists of just three options:
 
 - The chat service (`HUBOT_HIGHFIVE_EMAIL_SERVICE`) helps the plugin figure out how to find the right room to send messages to, and how to format messages properly. If this is set to `slack`, you'll also need to configure `HUBOT_SLACK_API_TOKEN`.
 - The announcement room (`HUBOT_HIGHFIVE_ROOM`)  sets the room in which high-fives are announced. If it's empty, the plugin will just spit messages out to the room it's triggered in.
+- Hubot can eavesdrop (`HUBOT_HIGHFIVE_ALLOW_EAVESDROPPING`) to notice a `highfive @user...` even when Hubot itself isn't directly asked to do the highfive.
 
 You can add some custom GIFs by specifying `HUBOT_HIGHFIVE_GIFS` to be a set of URLs separated by spaces.
 

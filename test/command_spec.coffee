@@ -72,9 +72,14 @@ cleanup = ->
     nock.cleanAll()
 
 # Message/response helper
-message_response = (msg, evt, expecter) ->
+message_response = (msg, evt, direct_address, expecter) ->
+    # direct_address is optional, need to detect if it's missing to find the callback
+    if not expecter?
+        expecter = direct_address
+        direct_address = true
+
     robot.adapter.on evt, expecter
-    robot.adapter.receive new TextMessage user, "TestHubot #{msg}"
+    robot.adapter.receive new TextMessage user, "#{if direct_address then 'TestHubot ' else ''}#{msg}"
 
 # Test help output
 describe 'help', ->
@@ -96,94 +101,134 @@ describe 'help', ->
         expect(expected).to.contain(x) for x in help
         do done
 
-# Test the Tango Card API implementation
-describe 'Tango Card', ->
-    beforeEach (done) ->
-        do prepNock
-        prep done
-    afterEach cleanup
+# We handle a couple of varieties of reason: "for X", and just "X".
+# That last case still results in hubot sending the reason as "for X".
+[{
+    reason: 'for something',
+    reason_sent: 'for something'
+}, {
+    reason: 'something',
+    reason_sent: 'for something'
+}].forEach (reasonCtx) ->
 
-    it 'should announce the gift card', (done) ->
-        message_response 'highfive @foo $25 for something', 'send', (e,strs) ->
-            unless strs.match /woo/i
-                expect(strs).to.match /.*\$25.*card.*/i
-                do done
+    # Test the command with a given reason
+    describe "highfive #{reasonCtx.reason}", ->
+        # We want to test the behavior in all four combinations of direct_address
+        # and allow_eavesdropping, but false/false is different in that the message
+        # is expected to be ignored.  Thus, we test the other three cases here, and
+        # special-case the false/false "ignore the message" case separately.
+        [{
+            direct_address: true,
+            allow_eavesdropping: false,
+        }, {
+            direct_address: true
+            allow_eavesdropping: true,
+        }, {
+            direct_address: false
+            allow_eavesdropping: true,
+        }].forEach (directCtx) ->
+            describe "with allow eavesdropping #{directCtx.allow_eavesdropping} and direct address #{directCtx.direct_address}", ->
 
-    it 'should refuse to send too much money in one day', (done) ->
-        process.env.HUBOT_HIGHFIVE_DAILY_LIMIT = 30
-        message_response 'highfive @foo $20 for nothing', 'send', (e,strs) ->
-            return unless strs.match /\$20/
-            message_response 'highfive @foo $15 for nothing', 'reply', (e,strs) ->
-                if strs.indexOf('$15') == -1
-                    expect(strs).to.match /.*sorry.*\$20.*\$30/i
-                    delete process.env.HUBOT_HIGHFIVE_DAILY_LIMIT
+                beforeEach (done) ->
+                    process.env.HUBOT_HIGHFIVE_ALLOW_EAVESDROPPING = directCtx.allow_eavesdropping.toString()
+                    prep done
+
+                afterEach ->
+                    delete process.env.HUBOT_HIGHFIVE_ALLOW_EAVESDROPPING
+                    do cleanup
+
+                it "shouldn't let you high-five yourself", (done) ->
+                    message_response "highfive @mocha #{reasonCtx.reason}", 'reply', directCtx.direct_address, (e,strs) ->
+                        expect(strs).to.contain 'clapping'
+                        do done
+
+                it "should complain if it can't find a user", (done) ->
+                    message_response "highfive @bar #{reasonCtx.reason}", 'reply', directCtx.direct_address, (e,strs) ->
+                        expect(strs).to.equal "Who's @bar?"
+                        do done
+
+                it 'should make some noise', (done) ->
+                    message_response "highfive @foo #{reasonCtx.reason}", 'send', directCtx.direct_address, (e,strs) ->
+                        expect(strs).to.match /woo/i
+                        expect(strs).to.contain 'foo'
+                        expect(strs).to.contain 'mocha'
+                        expect(strs).to.match /\.gif/i
+                        do done
+
+                it "should send #{reasonCtx.reason_sent} for #{reasonCtx.reason}", (done) ->
+                    message_response "highfive @foo #{reasonCtx.reason}", 'send', directCtx.direct_address, (e,strs) ->
+                        expect(strs).to.contain reasonCtx.reason_sent
+                        do done
+
+
+        describe 'with allow eavesdropping false and direct address false', ->
+            beforeEach prep
+            afterEach cleanup
+
+            it "should ignore highfives that aren't directly addressed to hubot", (done) ->
+                message_response "highfive @foo #{reasonCtx.reason}", 'send', false, (e,strs) ->
+                    expect(true).to.equal(false)
                     do done
+                # wait for 1 second to make sure the expecter *isn't* called
+                setTimeout done, 1000
 
-# Test the command itself
-describe 'highfive', ->
-    beforeEach prep
-    afterEach cleanup
+        # Test the Tango Card API implementation
+        describe 'with 1Tango Card', ->
+            # Because we need to tweak settings for many of these tests, they
+            # are individually responsible for calling `prep`!
+            beforeEach prepNock
+            afterEach cleanup
 
-    it "shouldn't let you high-five yourself", (done) ->
-        message_response 'highfive @mocha for nothing', 'reply', (e,strs) ->
-            expect(strs).to.contain 'clapping'
-            do done
+            describe 'default limits', ->
+                beforeEach prep
 
-    it "shouldn't let you send huge gifts", (done) ->
-        message_response 'highfive @foo $5000 for nothing', 'reply', (e,strs) ->
-            expect(strs).to.match /\$5000.*smaller.*150/i
-            do done
+                it 'should announce the gift card', (done) ->
+                    message_response "highfive @foo $25 #{reasonCtx.reason}", 'send', (e,strs) ->
+                        unless strs.match /woo/i
+                            expect(strs).to.match /.*\$25.*card.*/i
+                            do done
 
-    it 'should mention the right limit when refusing to order a card', (done) ->
-        process.env.HUBOT_HIGHFIVE_AWARD_LIMIT = 20
-        message_response 'highfive @foo $30 for nothing', 'reply', (e, strs) ->
-            delete process.env.HUBOT_HIGHFIVE_AWARD_LIMIT
-            expect(strs).to.contain '$30'
-            do done
+                it "shouldn't let you send huge gifts", (done) ->
+                    message_response "highfive @foo $5000 #{reasonCtx.reason}", 'reply', (e,strs) ->
+                        expect(strs).to.match /\$5000.*smaller.*150/i
+                        do done
 
-    it 'should refuse to send a card if awards are disabled', (done) ->
-        process.env.HUBOT_HIGHFIVE_AWARD_LIMIT = 0
-        message_response 'highfive @foo $10 for nothing', 'reply', (e,strs) ->
-            delete process.env.HUBOT_HIGHFIVE_AWARD_LIMIT
-            expect(strs).to.contain 'disabled'
-            do done
+            it 'should refuse to send too much money in one day', (done) ->
+                process.env.HUBOT_HIGHFIVE_DAILY_LIMIT = '30'
+                prep ->
+                    message_response "highfive @foo $20 #{reasonCtx.reason}", 'send', (e,strs) ->
+                        return unless strs.match /\$20/
+                        message_response "highfive @foo $15 #{reasonCtx.reason}", 'reply', (e,strs) ->
+                            if strs.indexOf('$15') == -1
+                                expect(strs).to.match /.*sorry.*\$20.*\$30/i
+                                delete process.env.HUBOT_HIGHFIVE_DAILY_LIMIT
+                                do done
 
-    it 'should make some noise', (done) ->
-        message_response 'highfive @foo for something', 'send', (e,strs) ->
-            expect(strs).to.match /woo/i
-            expect(strs).to.contain 'foo'
-            expect(strs).to.contain 'mocha'
-            expect(strs).to.match /\.gif/i
-            do done
+            it 'should mention the right limit when refusing to order a card', (done) ->
+                process.env.HUBOT_HIGHFIVE_AWARD_LIMIT = '20'
+                prep ->
+                    message_response "highfive @foo $30 #{reasonCtx.reason}", 'reply', (e, strs) ->
+                        expect(strs).to.contain "$#{process.env.HUBOT_HIGHFIVE_AWARD_LIMIT}"
+                        delete process.env.HUBOT_HIGHFIVE_AWARD_LIMIT
+                        do done
 
-    it "should complain if it can't find a user", (done) ->
-        message_response 'highfive @bar for nothing', 'reply', (e,strs) ->
-            expect(strs).to.equal "Who's @bar?"
-            do done
+            it 'should refuse to send a card if awards are disabled', (done) ->
+                process.env.HUBOT_HIGHFIVE_AWARD_LIMIT = '0'
+                prep ->
+                    message_response "highfive @foo $10 #{reasonCtx.reason}", 'reply', (e,strs) ->
+                        expect(strs).to.contain 'disabled'
+                        delete process.env.HUBOT_HIGHFIVE_AWARD_LIMIT
+                        do done
 
-    it "should be okay with 'for' or not", (done) ->
-        message_response 'highfive @foo something', 'send', (e,strs) ->
-            expect(strs).to.match /woo/i
-            expect(strs).to.contain 'foo'
-            expect(strs).to.contain 'mocha'
-            expect(strs).to.match /\.gif/i
-            do done
+            it 'daily double should double the amount', (done) ->
+                process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '1'
+                prep ->
+                    message_response "highfive @foo $10 #{reasonCtx.reason}", 'send', (e, strs) ->
+                        return unless strs.match /gift card is on its way/
+                        expect(strs).to.match /A \$20 gift card is on its way/
+                        process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '0'
+                        do done
 
-
-describe 'daily double', ->
-    beforeEach (done) ->
-        do prepNock
-        process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '1'
-        prep done
-    afterEach ->
-        process.env.HUBOT_HIGHFIVE_DOUBLE_RATE = '0'
-        do cleanup
-
-    it 'should double the amount', (done) ->
-        message_response 'highfive @foo $10 for something', 'send', (e, strs) ->
-            return unless strs.match /gift card is on its way/
-            expect(strs).to.match /A \$20 gift card is on its way/
-            do done
 
 describe 'config', ->
     beforeEach prep
