@@ -127,7 +127,7 @@ module.exports = (robot) ->
         msg.reply "#{hostname}/highfive/"
 
     robot.respond /highfive stats/, (msg) ->
-        sheet.stats msg
+        sheet.stats robot,msg
 
     # In order to support both directly-addressed messages ('hubot highfive @xxx')
     # and also eavesdropping ('highfive @xxx'), we need a regular expression that

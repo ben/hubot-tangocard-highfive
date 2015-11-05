@@ -32,7 +32,7 @@ module.exports.logToSheet = (robot, data) ->
             spreadsheet.send (err) ->
                 robot.logger.info "Error updating spreadsheet: #{err}" if err
 
-module.exports.stats = (msg) ->
+module.exports.stats = (robot, msg) ->
     Spreadsheet.load
         spreadsheetId: DOCID
         worksheetName: SHEETNAME
