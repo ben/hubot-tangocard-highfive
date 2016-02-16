@@ -305,6 +305,11 @@ GIFs = [
     'http://www.reactiongifs.com/wp-content/uploads/2012/11/high-fives.gif',
     'http://www.reactiongifs.com/r/bbb.gif',
     'http://www.reactiongifs.com/wp-content/uploads/2013/02/what-up.gif',
+    'http://forgifs.com/gallery/d/241345-4/Bengal-cat-high-five-attack.gif',
+    'http://forgifs.com/gallery/d/228874-2/Bowling-high-five-slap-KO.gif',
+    'http://forgifs.com/gallery/d/230104-2/Kid-steals-high-five.gif',
+    'http://forgifs.com/gallery/d/181670-4/Child-weightlifter-amped.gif',
+    'https://media.giphy.com/media/2r04CWsFWwixW/giphy.gif',
 ]
 
 doubleGifs = [
