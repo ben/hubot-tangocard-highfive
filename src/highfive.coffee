@@ -283,7 +283,6 @@ GIFs = [
     'http://i.giphy.com/il5XqHUQxAdVe.gif',
     'http://i.giphy.com/2AlVpRyjAAN2.gif',
     'http://i.giphy.com/r2BtghAUTmpP2.gif',
-    'http://i.giphy.com/fD2tbCl4snSi4.gif',
     'http://persephonemagazine.com/wp-content/uploads/2013/02/borat-letterman-high-five.gif',
     'http://i.giphy.com/10ThjPOApliaSA.gif',
     'http://i.giphy.com/14rRtgywkOitDa.gif',
