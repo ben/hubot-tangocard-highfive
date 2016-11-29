@@ -21,6 +21,7 @@ module.exports = (robot, gifGenerator) ->
         theUser = ->
             user = (u for u in users_cache when uid in [u.name, u.id])[0]
             user.email = user.profile.email if user
+            user.real_name ?= user.profile.real_name if user
             user
 
         user = do theUser
