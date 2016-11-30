@@ -37,7 +37,7 @@ module.exports = (robot, gifGenerator) ->
     message: (roomid, from_user, to_user, reason) ->
         message = """
         #{gifGenerator()}
-        <!channel> WOOOOOOOOO! <@#{from_user.name}> is high-fiving <@#{to_user.name}> for #{reason}!
+        <!here> WOOOOOOOOO! <@#{from_user.name}> is high-fiving <@#{to_user.name}> for #{reason}!
         """
         robot.adapter.send {room: roomid}, message
 
