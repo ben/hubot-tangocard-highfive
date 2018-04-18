@@ -309,6 +309,7 @@ GIFs = [
     'http://forgifs.com/gallery/d/230104-2/Kid-steals-high-five.gif',
     'http://forgifs.com/gallery/d/181670-4/Child-weightlifter-amped.gif',
     'https://media.giphy.com/media/2r04CWsFWwixW/giphy.gif',
+    'https://media0.giphy.com/media/12vP3dyG40ttqE/giphy.gif',
 ]
 
 doubleGifs = [
