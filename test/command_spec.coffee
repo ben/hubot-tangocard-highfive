@@ -62,9 +62,6 @@ prepNock = ->
                 delivered_at: moment.utc().toISOString()
                 reward:
                     number: '123'
-    nock('http://jsonip.com')
-        .get('/')
-        .reply 200, ip: '0.0.0.0'
 
 cleanup = ->
     robot.server.close()

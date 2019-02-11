@@ -39,9 +39,8 @@ module.exports = (robot) ->
             return doOrder() if resp.account?.available_balance >= dollars*100
 
             # Account needs more money
-            robot.http('http://jsonip.com').get() (err, res, body) ->
-                jsonip = JSON.parse body
-                app.fundAccount cust, acct, amtToFund, jsonip.ip, cc, auth, (resp) ->
-                    return doOrder() if resp.success
-                    robot.logger.info "TANGO funding response #{JSON.stringify resp}"
-                    msg.reply "(Problem funding Tango Card account: '#{resp.denial_message}'. Check the logs; you might want `highfive config`.)"
+            # Unconditionally fund the account with hardcoded IP address
+            app.fundAccount cust, acct, amtToFund, '0.0.0.0', cc, auth, (resp) ->
+                return doOrder() if resp.success
+                robot.logger.info "TANGO funding response #{JSON.stringify resp}"
+                msg.reply "(Problem funding Tango Card account: '#{resp.denial_message}'. Check the logs; you might want `highfive config`.)"
